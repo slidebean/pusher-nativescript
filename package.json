@@ -1,0 +1,31 @@
+{
+  "name": "pusher-nativescript",
+  "version": "0.0.1",
+  "description": "Pusher plugin for NativeScript with support to iOS and Android platforms",
+  "main": "index.js",
+  "author": "Juan Delgadillo <juan@slidebean.com> (https://github.com/JuanDelgadillo)",
+  "contributors": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/slidebean/pusher-nativescript"
+  },
+  "bugs": {
+    "url": "https://github.com/slidebean/pusher-nativescript/issues"
+  },
+  "keywords": [
+    "NativeScript",
+    "JavaScript",
+    "Android",
+    "iOS",
+    "Pusher"
+  ],
+  "preferGlobal": false,
+  "private": false,
+  "nativescript": {
+    "platforms": {
+      "android": "2.3.0",
+      "ios": "2.3.0"
+    }
+  },
+  "license": "MIT"
+}
