@@ -187,8 +187,8 @@ export class Pusher {
           onAuthenticationFailure: (message: String, exception: Object) => {
             reject(message);
           },
-          onUserInformationReceived: (channelName: String, users: Array <any>) => {
-            console.log('onUserInformationReceived')
+          onUsersInformationReceived: (channelName: String, users: Array <any>) => {
+            console.log('onUsersInformationReceived')
           },
           userSubscribed: (channelName: String, user: String) => {
             console.log('userSubscribed')
