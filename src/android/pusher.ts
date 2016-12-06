@@ -88,7 +88,7 @@ export class Pusher {
   connect () {
     return new Promise((resolve, reject) => {
       let listeners:ConnectionEventListeners  = {
-        onConnectionStateChange: function (change: Object) {
+        onConnectionStateChange (change: Object) {
           let connectionCurrentState = change.getCurrentState().name();
 
           if (connectionCurrentState === "CONNECTED") {
@@ -96,7 +96,7 @@ export class Pusher {
           }
         },
 
-        onError: function (message: String, code: String, exception: Object) {
+        onError (message: String, code: String, exception: Object) {
           console.log(exception)
           reject(message);
         }
@@ -143,22 +143,22 @@ export class Pusher {
       let channelName = (subscribeInfo.channelInfo.channelType === channelTypes.publicChannelType) ? subscribeInfo.channelInfo.channelName : `${ subscribeInfo.channelInfo.channelType }-${ subscribeInfo.channelInfo.channelName }`;
 
       let pusherEventBinding = new com.pusher.client.channel[channelEventListenerName]({
-        onEvent: (channelName, eventName, data) => {
+        onEvent (channelName, eventName, data) {
           channelEventsListeners.onEvent({ channel: channelName, eventName: eventName, data: JSON.parse(data) });
         },
-        onSubscriptionSucceeded: (channelName: String) => {
+        onSubscriptionSucceeded (channelName: String) {
           if (typeof channelEventsListeners.onSubscriptionSucceeded !== 'undefined') {
             channelEventsListeners.onSubscriptionSucceeded(channelName);
           }
           resolve();
         },
-        onAuthenticationFailure: (message: String, exception: Object) => {
+        onAuthenticationFailure (message: String, exception: Object) {
           if (typeof channelEventsListeners.onAuthenticationFailure !== 'undefined') {
             channelEventsListeners.onAuthenticationFailure(message);
           }
           reject(message);
         },
-        onUsersInformationReceived: (channelName: String, subscribedMembers: Array <any>) => {
+        onUsersInformationReceived (channelName: String, subscribedMembers: Array <any>) {
           console.log('onUsersInformationReceived')
 
           let members = [];
@@ -177,7 +177,7 @@ export class Pusher {
             channelEventsListeners.onMemberInformationReceived(channelName, members);
           }
         },
-        userSubscribed: (channelName: String, memberSubscribed: Array <Object>) => {
+        userSubscribed (channelName: String, memberSubscribed: Array <Object>) {
           console.log('userSubscribed')
 
           let member = {
@@ -189,7 +189,7 @@ export class Pusher {
             channelEventsListeners.memberSubscribed(channelName, member)
           }
         },
-        userUnsubscribed: (channelName: String, memberUnsubscribed: Array <Object>) => {
+        userUnsubscribed (channelName: String, memberUnsubscribed: Array <Object>) {
           console.log('userUnsubscribed')
 
           let member = {

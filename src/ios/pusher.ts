@@ -30,11 +30,11 @@ export class Pusher {
     }
 
     let Delegate = NSObject.extend({
-      pusherConnectionWillConnect: (pusher: Object, connection: Object) => {
+      pusherConnectionWillConnect (pusher: Object, connection: Object) {
         return true;
       },
 
-      pusherConnectionDidConnect: (pusher: Object, connection: Object) => {
+      pusherConnectionDidConnect (pusher: Object, connection: Object) {
         console.log('pusherConnectionDidConnect');
         let connectionEstablished = connection.connected;
 
@@ -43,27 +43,27 @@ export class Pusher {
         }
       },
 
-      pusherConnectionDidDisconnectWithErrorWillAttemptReconnect: (pusher: Object, connection: Object, error: Object, willAttemptReconnect: Boolean) => {
+      pusherConnectionDidDisconnectWithErrorWillAttemptReconnect (pusher: Object, connection: Object, error: Object, willAttemptReconnect: Boolean) {
         console.log('pusherConnectionDidDisconnectWithErrorWillAttemptReconnect');
         let errorReason = error.userInfo.objectForKey('reason');
 
         this._connectionPromiseReject(errorReason);
       },
 
-      pusherConnectionFailedWithError: (pusher, connection, error) => {
+      pusherConnectionFailedWithError (pusher, connection, error) {
         console.log('pusherConnectionFailedWithError');
       },
 
-      pusherConnectionWillAutomaticallyReconnectAfterDelay: (pusher, connection, delay) => {
+      pusherConnectionWillAutomaticallyReconnectAfterDelay (pusher, connection, delay) {
         console.log('pusherConnectionWillAutomaticallyReconnectAfterDelay');
         return true;
       },
 
-      pusherWillAuthorizeChannelWithAuthOperation: (pusher, channel, operation) => {
+      pusherWillAuthorizeChannelWithAuthOperation (pusher, channel, operation) {
         console.log('pusherWillAuthorizeChannelWithAuthOperation');
       },
 
-      pusherDidSubscribeToChannel: (pusher, channel) => {
+      pusherDidSubscribeToChannel (pusher, channel) {
         console.log('pusherDidSubscribeToChannel');
         this._pusherDidSubscribeToChannelPromiseResolve(channel);
 
@@ -74,11 +74,11 @@ export class Pusher {
         }
       },
 
-      pusherDidUnsubscribeFromChannel: (pusher, channel) => {
+      pusherDidUnsubscribeFromChannel (pusher, channel) {
         console.log('pusherDidUnsubscribeFromChannel');
       },
 
-      pusherDidFailToSubscribeToChannelWithError: (pusher, channel, error) => {
+      pusherDidFailToSubscribeToChannelWithError (pusher, channel, error) {
         console.log('pusherDidFailToSubscribeToChannelWithError');
 
         let subscriptionError = error.localizedDescription
@@ -90,7 +90,7 @@ export class Pusher {
         }
       },
 
-      pusherDidReceiveErrorEvent: (pusher, errorEvent) => {
+      pusherDidReceiveErrorEvent (pusher, errorEvent) {
         console.log('pusherDidReceiveErrorEvent');
       }
     }, {
@@ -157,7 +157,7 @@ export class Pusher {
       }[subscribeInfo.channelInfo.channelType];
 
       let Delegate = NSObject.extend({
-        presenceChannelDidSubscribe: (channel: Object) => {
+        presenceChannelDidSubscribe (channel: Object) {
           
           let members = [];
 
@@ -182,7 +182,7 @@ export class Pusher {
             this._channelEventsListeners.onMemberInformationReceived(channel.name, members);
           }
         },
-        presenceChannelMemberAdded: (channel: Object, member: Object) => {
+        presenceChannelMemberAdded (channel: Object, member: Object) {
           console.log('presence-presenceChannelMemberAdded')
 
           let member = {
@@ -194,7 +194,7 @@ export class Pusher {
             this._channelEventsListeners.memberSubscribed(channel.name, member);
           }
         },
-        presenceChannelMemberRemoved: (channel: Object, member: Object) => {
+        presenceChannelMemberRemoved (channel: Object, member: Object) {
           console.log('presence-presenceChannelMemberRemoved')
 
           let member = {
