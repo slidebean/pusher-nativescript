@@ -1,4 +1,4 @@
-import { PusherOptions } from './interfaces/PusherOptions';
+import { PublicChannelEventListener, PrivateChannelEventListener, PresenceChannelEventListener, PusherOptions } from '../interfaces';
 import { Promise } from 'es6-promise';
 
 export declare class Pusher {
@@ -8,8 +8,10 @@ export declare class Pusher {
   /**
    * Creates a new instance of Pusher.
    *
-   * @param AppKey An string with your Pusher API key.
-   * @param Options An Object of options for the Pusher client library to use.
+   * @param appKey The string with your Pusher API key.
+   *
+   * @param options The object of options for the Pusher client library to use.
+   * See PusherOptions interface for more information
    *
    * @return A Pusher instance.
    */
@@ -21,7 +23,7 @@ export declare class Pusher {
    *
    * Calls are ignored (a connection is not attempted) if the Connection State is not DISCONNECTED.
    *
-   * @return A promise with the connection.
+   * @return A promise.
    */
 
   connect (): Promise<any>;
@@ -37,25 +39,26 @@ export declare class Pusher {
   /**
    * Subscribes to a public, presence or private channel.
    *
-   * @param channelName The name of the channel to subscribe to.
-   * @param eventName The name of the event to listen to.
-   * @param listener The listener to be notified when an event is raised.
+   * @param channelTypeAndName The type and name of the channel to subscribe to.
    *
-   * @return A Promise ...
+   * @param eventName The name of the event to listen to.
+   *
+   * @param channelEventsListeners The listeners to be notified when events are raised.
+   *
+   * @return A Promise.
    */
 
-  subscribe (channelName: String, eventName: String, listener?: Function): Promise<any>;
+  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: PublicChannelEventListener | PrivateChannelEventListener | PresenceChannelEventListener): Promise<any>;
 
   /**
    * Unsubscribes from a channel using via the name of the channel.
    *
-   * @param channelName The name of the channel to be unsubscribed from.
-   * @param eventName The name of the event to be listened.
+   * @param channelTypeAndName The type and name of the channel to be unsubscribed from.
    *
-   * @return A promise ...
+   * @param eventNames The optional event or events names to be unsubscribed.
    */
 
-  unsubscribe (channelName: String): Promise<any>;
+  unsubscribe (channelTypeAndName: String, eventNames?: Array <string>): void;
 
   /**
    * Triggers an event on the specified channel.
@@ -63,13 +66,15 @@ export declare class Pusher {
    * The data will be converted to JSON format so needs to be any object that can be
    * transformed into JSON (typically any plist-compatible object).
    *
-   * @param channelName The channel the event should be triggered on.
-   * @param eventName The name of the event to trigger.
+   * @param channelTypeAndName The type and name of the channel the event should be triggered on.
+   *
+   * @param eventName The name of the event to be triggered.
+   *
    * @param eventData The JSON-compatible data object for the event.
    * 
-   * @return A promise ...
+   * @return A promise.
    */
 
-  trigger (channelName: String, eventName: String, eventData: Object): Promise<any>;
+  trigger (channelTypeAndName: String, eventName: String, eventData: Object): Promise<any>;
 
 }
