@@ -1,7 +1,16 @@
-import { ChannelEventListener } from './ChannelEventListener';
+import { PublicChannelEventListener } from './PublicChannelEventListener';
 
-export interface PrivateChannelEventListener extends ChannelEventListener {
+/**
+ * Used to listen for private specific events as well as those defined by the
+ * PublicChannelEventListener and parent interfaces.
+ */
+export interface PrivateChannelEventListener extends PublicChannelEventListener {
 
-  onAuthenticationFailure (message: String, exception: Error): void;
+  /**
+   * Called when an attempt to authenticate a private channel fails.
+   *
+   * @param error A description of the problem.
+   */
+  onAuthenticationFailure (error: String): void;
 
 }

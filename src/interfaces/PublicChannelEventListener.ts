@@ -1,3 +1,6 @@
+/**
+ * Used to listen for public specific events.
+ */
 export interface PublicChannelEventListener {
 
   /**
