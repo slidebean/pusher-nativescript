@@ -2,7 +2,7 @@
  * Configuration for a pusher-nativesript instance.
  */
 
-export interface PusherOptions {
+export interface IPusherOptions {
   /**
    * Sets the number of milliseconds of inactivity at which a "ping" will be
    * triggered to check the connection.

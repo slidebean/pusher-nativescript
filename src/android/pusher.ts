@@ -1,5 +1,4 @@
-import { PublicChannelEventListener, PrivateChannelEventListener, PresenceChannelEventListener, PusherOptions } from '../../interfaces';
-import { ConnectionEventListeners } from '../interfaces/ConnectionEventListeners';
+import { IConnectionEventListeners , IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
 import { errorsHandler, channelTypes } from '../utils';
 declare let com;
 
@@ -10,7 +9,7 @@ export class Pusher {
   _pusherDidSubscribeToChannelPromiseResolve;
   _pusherDidSubscribeToChannelPromiseReject;
 
-  constructor (appKey: String, options: PusherOptions = { encrypted: true }) {
+  constructor (appKey: String, options: IPusherOptions = { encrypted: true }) {
 
     let constructorInfo = errorsHandler('constructor', 'Android', appKey, options);
 
@@ -87,7 +86,7 @@ export class Pusher {
 
   connect () {
     return new Promise((resolve, reject) => {
-      let listeners:ConnectionEventListeners  = {
+      let listeners:IConnectionEventListeners  = {
         onConnectionStateChange (change: Object) {
           let connectionCurrentState = change.getCurrentState().name();
 
@@ -115,7 +114,7 @@ export class Pusher {
     this._pusher.disconnect();
   }
 
-  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: PublicChannelEventListener | PrivateChannelEventListener | PresenceChannelEventListener) {
+  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
 
     let subscribeInfo = errorsHandler('subscribe', channelTypeAndName, eventName, channelEventsListeners);
 

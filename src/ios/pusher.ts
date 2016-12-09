@@ -1,4 +1,4 @@
-import { PublicChannelEventListener, PrivateChannelEventListener, PresenceChannelEventListener, PusherOptions } from '../../interfaces';
+import { IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
 declare let NSObject, NSDictionary, NSURL, PTPusherDelegate, PTPusherPresenceChannelDelegate, PTPusher;
 import { errorsHandler, channelTypes } from '../utils';
 
@@ -21,7 +21,7 @@ export class Pusher {
   _pusherDidSubscribeToChannelPromiseResolve;
   _pusherDidSubscribeToChannelPromiseReject;
 
-  constructor (appKey: String, options: PusherOptions = { encrypted: true }) {
+  constructor (appKey: String, options: IPusherOptions = { encrypted: true }) {
 
     let constructorInfo = errorsHandler('constructor', 'iOS', appKey, options);
 
@@ -39,7 +39,7 @@ export class Pusher {
         let connectionEstablished = connection.connected;
 
         if (connectionEstablished) {
-          this._connectionPromiseResolve();
+          this._connectionPromiseResolveI();
         }
       },
 
@@ -133,7 +133,7 @@ export class Pusher {
     this._pusher.disconnect();
   }
 
-  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: PublicChannelEventListener | PrivateChannelEventListener | PresenceChannelEventListener) {
+  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
 
     let subscribeInfo = errorsHandler('subscribe', channelTypeAndName, eventName, channelEventsListeners);
 

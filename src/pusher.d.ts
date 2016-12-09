@@ -1,9 +1,9 @@
-import { PublicChannelEventListener, PrivateChannelEventListener, PresenceChannelEventListener, PusherOptions } from '../interfaces';
+import { IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../interfaces';
 import { Promise } from 'es6-promise';
 
 export declare class Pusher {
   _pusher: Object;
-  _options: PusherOptions;
+  _options: IPusherOptions;
 
   /**
    * Creates a new instance of Pusher.
@@ -11,12 +11,12 @@ export declare class Pusher {
    * @param appKey The string with your Pusher API key.
    *
    * @param options The object of options for the Pusher client library to use.
-   * See PusherOptions interface for more information
+   * See IPusherOptions interface for more information
    *
    * @return A Pusher instance.
    */
 
-  constructor (appKey: String, options?: PusherOptions);
+  constructor (appKey: String, options?: IPusherOptions);
 
   /**
    * Connects to Pusher.
@@ -48,7 +48,7 @@ export declare class Pusher {
    * @return A Promise.
    */
 
-  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: PublicChannelEventListener | PrivateChannelEventListener | PresenceChannelEventListener): Promise<any>;
+  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener): Promise<any>;
 
   /**
    * Unsubscribes from a channel using via the name of the channel.

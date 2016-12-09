@@ -30,7 +30,7 @@ npm install pusher-nativescript --save
 ```typescript
 // Importing Pusher's dependencies
 import { Pusher } from 'pusher-nativescript';
-import { PublicChannelEventListener } from 'pusher-nativescript/interfaces';
+import { IPublicChannelEventListener } from 'pusher-nativescript/interfaces';
 
 // Creating a new Pusher instance
 let pusher = new Pusher(YOUR_APP_KEY);
@@ -44,7 +44,7 @@ pusher.connect().then(() => {
 });
 
 // Listeners to listen for public specific events
-let publicChannelEventsListeners:PublicChannelEventListener = {
+let publicChannelEventsListeners:IPublicChannelEventListener = {
   onEvent (data: Object) {
     console.log('Handling new arriving data from my_event');
     console.log(JSON.stringify(data));
@@ -83,13 +83,13 @@ import { Pusher } from 'pusher-nativescript';
 let pusher = new Pusher(YOUR_APP_KEY);
 ```
 
-If you are going to use [private](http://pusher.com/docs/private_channels) or [presence](http://pusher.com/docs/presence_channels) channels then you will need to provide an `Authorizer` to be used when authenticating subscriptions. In order to do this you need to pass in a `PusherOptions` object which has had an `authorizer` set.
+If you are going to use [private](http://pusher.com/docs/private_channels) or [presence](http://pusher.com/docs/presence_channels) channels then you will need to provide an `Authorizer` to be used when authenticating subscriptions. In order to do this you need to pass in a `IPusherOptions` object which has had an `authorizer` set.
 
 ```typescript
 import { Pusher } from 'pusher-nativescript';
-import { PusherOptions } from 'pusher-nativescript/interfaces';
+import { IPusherOptions } from 'pusher-nativescript/interfaces';
 
-let pusherOptions:PusherOptions = {
+let pusherOptions:IPusherOptions = {
   authorizer: 'http://127.0.0.1:5000/pusher/auth'
 }
 
@@ -98,7 +98,7 @@ let pusher = new Pusher(YOUR_APP_KEY, pusherOptions);
 
 See the documentation on [Authenticating Users](http://pusher.com/docs/authenticating_users) for more information.
 
-You can also specify the Pusher cluster you wish to connect to on the PusherOptions, e.g.
+You can also specify the Pusher cluster you wish to connect to on the IPusherOptions, e.g.
 
 ```typescript
 pusherOptions.cluster = 'eu';
@@ -128,7 +128,7 @@ After disconnection the Pusher instance will release any internally allocated re
 
 ## Subscribing to channels and binding-handling events
 
-Pusher uses the concept of [channels](http://pusher.com/docs/channels) as a way of subscribing to data. They are identified and subscribed to by a simple name. Events are bound to on a channels and are also identified by name. To listen to an event you need to implemented the `PublicChannelEventListener` or `PrivateChannelEventListener` or `PresenceChannelEventListener` interface depending of the channel type you have subscribed to.
+Pusher uses the concept of [channels](http://pusher.com/docs/channels) as a way of subscribing to data. They are identified and subscribed to by a simple name. Events are bound to on a channels and are also identified by name. To listen to an event you need to implemented the `IPublicChannelEventListener` or `IPrivateChannelEventListener` or `IPresenceChannelEventListener` interface depending of the channel type you have subscribed to.
 
 Channel subscriptions need only be registered once per `Pusher` instance. They are preserved across disconnection and re-established with the server on reconnect. They should NOT be re-registered. They may, however, be registered with a `Pusher` instance before the first call to `connect` - they will be completed with the server as soon as a connection becomes available.
 
@@ -137,18 +137,18 @@ There are two types of events that occur on channel subscriptions.
 1. Protocol related events such as those triggered when a subscription succeeds
 2. Application events that have been triggered by code within your application
 
-The `PublicChannelEventListener` is an interface that is informed of both protocol related events and application data events. A `PublicChannelEventListener` can be used when initially subscribing to a public channel.
+The `IPublicChannelEventListener` is an interface that is informed of both protocol related events and application data events. A `IPublicChannelEventListener` can be used when initially subscribing to a public channel.
 
 ### Public channels
 
 ```typescript
 import { Pusher } from 'pusher-nativescript';
-import { PublicChannelEventListener } from 'pusher-nativescript/interfaces';
+import { IPublicChannelEventListener } from 'pusher-nativescript/interfaces';
 
 let pusher = new Pusher(YOUR_APP_KEY);
 pusher.connect();
   
-let publicChannelEventsListeners:PublicChannelEventListener = {
+let publicChannelEventsListeners:IPublicChannelEventListener = {
   onEvent (data: Object) {
     // Called for incoming events name 'my_event'
   },
@@ -168,14 +168,14 @@ pusher.subscribe(channelTypeAndName, eventName, publicChannelEventsListeners);
 
 It's possible to subscribe to [private channels](http://pusher.com/docs/private_channels) that provide a mechanism for [authenticating channel subscriptions](http://pusher.com/docs/authenticating_users). In order to do this you need to provide an `Authorizer` when creating the `Pusher` instance (see [The Pusher constructor](#the-pusher-constructor) above).
 
-The library makes an HTTP `POST` request to an authenticating endpoint yo have set in a PusherOptions object.
+The library makes an HTTP `POST` request to an authenticating endpoint you have set in a IPusherOptions object.
 
 In addition to the events that are possible on public channels, a private channel exposes an `onAuthenticationFailure`. This is called if the `Authorizer` does not successfully authenticate the subscription:
 
 Private channels are subscribed to as follows:
 
 ```typescript
-let privateChannelEventsListeners:PrivateChannelEventListener = {
+let privateChannelEventsListeners:IPrivateChannelEventListener = {
   onAuthenticationFailure (error: String) {
     // Authentication failure due to ${ error }
   },
@@ -189,18 +189,18 @@ let eventName = 'my_event';
 pusher.subscribe(channelTypeAndName, eventName, privateChannelEventsListeners);
 ```
 
-The `PrivateChannelEventListener` interface extends the `PublicChannelEventListener` interface.
+The `IPrivateChannelEventListener` interface extends the `IPublicChannelEventListener` interface.
 
 ### Presence channels
 
 [Presence channels](http://pusher.com/docs/presence_channels) are private channels which provide additional events exposing who is currently subscribed to the channel. Since they extend private channels they also need to be authenticated (see [authenticating channel subscriptions](http://pusher.com/docs/authenticating_users)).
 
-Presence channels provide additional events relating to users joining (subscribing) and leaving (unsubscribing) the presence channel. It is possible to listen to these events by implementing the `PresenceChannelEventListener`.
+Presence channels provide additional events relating to users joining (subscribing) and leaving (unsubscribing) the presence channel. It is possible to listen to these events by implementing the `IPresenceChannelEventListener`.
 
 Presence channels can be subscribed to as follows:
 
 ```typescript
-let presenceChannelEventsListeners:PresenceChannelEventListener = {
+let presenceChannelEventsListeners:IPresenceChannelEventListener = {
   onMemberInformationReceived (channelName: String, members: Array <Object>) {
     // Called when the subscription has succeeded and an initial list of subscribed users has been received from Pusher.
   },
@@ -213,7 +213,7 @@ let presenceChannelEventsListeners:PresenceChannelEventListener = {
   // A user with userID: ${ member.userID } has left the channel ${ channelName }
   }
 
-  // Other PrivateChannelEventListener methods
+  // Other IPrivateChannelEventListener methods
 }
 
 let channelTypeAndName = 'presence-my_presence_channel';
@@ -222,7 +222,7 @@ let eventName = 'my_event';
 pusher.subscribe(channelTypeAndName, eventName, presenceChannelEventsListeners);
 ```
 
-The `PresenceChannelEventListener` interface extends the `PrivateChannelEventListener` interface.
+The `IPresenceChannelEventListener` interface extends the `IPrivateChannelEventListener` interface.
 
 #### The Member object
 
@@ -258,7 +258,7 @@ pusher.unsubscribe('public-my_public_channel', ['my_event']);
 
 ```typescript
 import { Pusher } from 'pusher-nativescript';
-import { PublicChannelEventListener } from 'pusher-nativescript/interfaces';
+import { IPublicChannelEventListener } from 'pusher-nativescript/interfaces';
 
 class Example {
   _pusher;
@@ -269,7 +269,7 @@ class Example {
   }
   
   listeningToMyEvent () {
-    let publicChannelEventsListeners:PublicChannelEventListener = {
+    let publicChannelEventsListeners:IPublicChannelEventListener = {
       onEvent (data: Object) {
         console.log('Handling new arriving data from my_event');
         console.log(JSON.stringify(data));

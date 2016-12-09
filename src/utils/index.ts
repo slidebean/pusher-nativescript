@@ -1,4 +1,4 @@
-import { PublicChannelEventListener, PrivateChannelEventListener, PresenceChannelEventListener } from '../../interfaces';
+import { IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener } from '../../interfaces';
 let defaultChannelTypes = ['public', 'private', 'presence'];
 let [publicChannelType, privateChannelType, presenceChannelType] = defaultChannelTypes;
 
@@ -92,7 +92,7 @@ let validator = {
     }
   },
 
-  channelEventsListeners (channelEventsListeners: PublicChannelEventListener | PrivateChannelEventListener | PresenceChannelEventListener) {
+  channelEventsListeners (channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
     if (typeof channelEventsListeners === 'undefined' || typeof channelEventsListeners !== 'object') {
       throw(new Error('The channelEventsListeners parameter is required and must be an object'));
     }

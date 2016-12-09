@@ -1,10 +1,10 @@
-import { PrivateChannelEventListener } from './PrivateChannelEventListener';
+import { IPrivateChannelEventListener } from './IPrivateChannelEventListener';
 
 /**
  * Used to listen for presence specific events as well as those defined by the
  * PrivateChannelEventListener and parent interfaces.
  */
-export interface PresenceChannelEventListener extends PrivateChannelEventListener {
+export interface IPresenceChannelEventListener extends IPrivateChannelEventListener {
 
   /**
    * Called when the subscription has succeeded and an initial list of

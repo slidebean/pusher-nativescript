@@ -1,7 +1,7 @@
 /**
  * Used to listen for public specific events.
  */
-export interface PublicChannelEventListener {
+export interface IPublicChannelEventListener {
 
   /**
    * Callback that is fired whenever an event is received.

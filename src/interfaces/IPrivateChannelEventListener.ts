@@ -1,10 +1,10 @@
-import { PublicChannelEventListener } from './PublicChannelEventListener';
+import { IPublicChannelEventListener } from './IPublicChannelEventListener';
 
 /**
  * Used to listen for private specific events as well as those defined by the
- * PublicChannelEventListener and parent interfaces.
+ * IPublicChannelEventListener and parent interfaces.
  */
-export interface PrivateChannelEventListener extends PublicChannelEventListener {
+export interface IPrivateChannelEventListener extends IPublicChannelEventListener {
 
   /**
    * Called when an attempt to authenticate a private channel fails.
