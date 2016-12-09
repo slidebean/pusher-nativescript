@@ -4,6 +4,7 @@ import { Promise } from 'es6-promise';
 export declare class Pusher {
   _pusher: Object;
   _options: IPusherOptions;
+  _pusherEventBindings: Array <Object>;
 
   /**
    * Creates a new instance of Pusher.
@@ -26,7 +27,7 @@ export declare class Pusher {
    * @return A promise.
    */
 
-  connect (): Promise<any>;
+  public connect (): Promise<any>;
 
   /**
    * Disconnect from Pusher.
@@ -34,7 +35,7 @@ export declare class Pusher {
    * Calls are ignored if the Connection State is not CONNECTED.
    */
 
-  disconnect (): void;
+  public disconnect (): void;
 
   /**
    * Subscribes to a public, presence or private channel.
@@ -48,7 +49,7 @@ export declare class Pusher {
    * @return A Promise.
    */
 
-  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener): Promise<any>;
+  public subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener): Promise<any>;
 
   /**
    * Unsubscribes from a channel using via the name of the channel.
@@ -58,7 +59,7 @@ export declare class Pusher {
    * @param eventNames The optional event or events names to be unsubscribed.
    */
 
-  unsubscribe (channelTypeAndName: String, eventNames?: Array <string>): void;
+  public unsubscribe (channelTypeAndName: String, eventNames?: Array <string>): void;
 
   /**
    * Triggers an event on the specified channel.
@@ -75,6 +76,6 @@ export declare class Pusher {
    * @return A promise.
    */
 
-  trigger (channelTypeAndName: String, eventName: String, eventData: Object): Promise<any>;
+  public trigger (channelTypeAndName: String, eventName: String, eventData: Object): Promise<any>;
 
 }
