@@ -1,13 +1,11 @@
-import { IConnectionEventListeners , IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
+import { IPusher, IConnectionEventListeners , IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
 import { errorsHandler, channelTypes } from '../utils';
 declare let com;
 
-export class Pusher {
+export class Pusher implements IPusher {
   _pusher;
   _options;
   _pusherEventBindings: Array <Object> = [];
-  _pusherDidSubscribeToChannelPromiseResolve;
-  _pusherDidSubscribeToChannelPromiseReject;
 
   constructor (appKey: String, options: IPusherOptions = { encrypted: true }) {
 
@@ -84,7 +82,7 @@ export class Pusher {
     
   }
 
-  connect () {
+  public connect () {
     return new Promise((resolve, reject) => {
       let listeners:IConnectionEventListeners  = {
         onConnectionStateChange (change: Object) {
@@ -110,11 +108,11 @@ export class Pusher {
 
   }
 
-  disconnect () {
+  public disconnect () {
     this._pusher.disconnect();
   }
 
-  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
+  public subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
 
     let subscribeInfo = errorsHandler('subscribe', channelTypeAndName, eventName, channelEventsListeners);
 
@@ -123,11 +121,6 @@ export class Pusher {
       if (!subscribeInfo.isValid) {
         return reject(subscribeInfo.errorMessage);
       }
-
-      let pusherDidSubscribeToChannelPromise = new Promise((resolve, reject) => {
-        this._pusherDidSubscribeToChannelPromiseResolve = resolve;
-        this._pusherDidSubscribeToChannelPromiseReject = reject;
-      })
 
       let eventNames = [eventName];
 
@@ -215,7 +208,7 @@ export class Pusher {
     });
   }
 
-  unsubscribe (channelTypeAndName: String, eventNames?: Array <String>) {
+  public unsubscribe (channelTypeAndName: String, eventNames?: Array <String>) {
 
     let unsubscribeInfo = errorsHandler('unsubscribe', channelTypeAndName, eventNames);
 
@@ -236,7 +229,7 @@ export class Pusher {
     }
   }
 
-  trigger (channelTypeAndName: String, eventName: String, eventData: Object) {
+  public trigger (channelTypeAndName: String, eventName: String, eventData: Object) {
 
     let triggerInfo = errorsHandler('trigger', channelTypeAndName, eventName, eventData);
 
@@ -259,7 +252,7 @@ export class Pusher {
     });
   }
 
-  getChannelByNameAndType (channelName: String, channelType: String) {
+  private getChannelByNameAndType (channelName: String, channelType: String) {
     let getChannelMethodName = {
       'public': 'getChannel',
       'private': 'getPrivateChannel',

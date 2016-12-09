@@ -1,4 +1,4 @@
-import { IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
+import { IPusher, IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
 declare let NSObject, NSDictionary, NSURL, PTPusherDelegate, PTPusherPresenceChannelDelegate, PTPusher;
 import { errorsHandler, channelTypes } from '../utils';
 
@@ -11,7 +11,7 @@ NSDictionary.prototype.toJSON = function () {
   return result;
 };
 
-export class Pusher {
+export class Pusher implements IPusher {
   _pusher;
   _options;
   _pusherEventBindings: Array <Object> = [];
@@ -119,7 +119,7 @@ export class Pusher {
 
   }
 
-  connect () {
+  public connect () {
 
     this._pusher.connect();
 
@@ -129,11 +129,11 @@ export class Pusher {
     });
   }
 
-  disconnect () {
+  public disconnect () {
     this._pusher.disconnect();
   }
 
-  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
+  public subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
 
     let subscribeInfo = errorsHandler('subscribe', channelTypeAndName, eventName, channelEventsListeners);
 
@@ -241,7 +241,7 @@ export class Pusher {
   }
 
 
-  unsubscribe (channelTypeAndName: String, eventNames?: Array <String>) {
+  public unsubscribe (channelTypeAndName: String, eventNames?: Array <String>) {
 
     let unsubscribeInfo = errorsHandler('unsubscribe', channelTypeAndName, eventNames);
 
@@ -263,7 +263,7 @@ export class Pusher {
     
   }
 
-  trigger (channelTypeAndName: String, eventName: String, eventData: Object) {
+  public trigger (channelTypeAndName: String, eventName: String, eventData: Object) {
 
     let triggerInfo = errorsHandler('trigger', channelTypeAndName, eventName, eventData);
 
