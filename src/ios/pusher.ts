@@ -16,10 +16,10 @@ export class Pusher implements IPusher {
   _options;
   _pusherEventBindings: Array <Object> = [];
   _channelEventsListeners;
-  _connectionPromiseResolve;
-  _connectionPromiseReject;
-  _pusherDidSubscribeToChannelPromiseResolve;
-  _pusherDidSubscribeToChannelPromiseReject;
+  _pusherConnectionDidSuccessDelegate: Function;
+  _pusherConnectionDidfailDelegate: Function;
+  _pusherChannelSubscriptionDidSuccessDelegate: Function;
+  _pusherChannelSubscriptionDidFailDelegate: Function;
 
   constructor (appKey: String, options: IPusherOptions = { encrypted: true }) {
 
@@ -34,21 +34,9 @@ export class Pusher implements IPusher {
         return true;
       },
 
-      pusherConnectionDidConnect: (pusher: Object, connection: Object) => {
-        console.log('pusherConnectionDidConnect');
-        let connectionEstablished = connection.connected;
+      pusherConnectionDidConnect: (pusher: Object, connection: Object) => this._pusherConnectionDidSuccessDelegate(pusher, connection),
 
-        if (connectionEstablished) {
-          this._connectionPromiseResolveI();
-        }
-      },
-
-      pusherConnectionDidDisconnectWithErrorWillAttemptReconnect: (pusher: Object, connection: Object, error: Object, willAttemptReconnect: Boolean) => {
-        console.log('pusherConnectionDidDisconnectWithErrorWillAttemptReconnect');
-        let errorReason = error.userInfo.objectForKey('reason');
-
-        this._connectionPromiseReject(errorReason);
-      },
+      pusherConnectionDidDisconnectWithErrorWillAttemptReconnect: (pusher: Object, connection: Object, error: Object, willAttemptReconnect: Boolean) => this._pusherConnectionDidfailDelegate(pusher, connection, error, willAttemptReconnect),
 
       pusherConnectionFailedWithError (pusher, connection, error) {
         console.log('pusherConnectionFailedWithError');
@@ -65,7 +53,7 @@ export class Pusher implements IPusher {
 
       pusherDidSubscribeToChannel: (pusher, channel) => {
         console.log('pusherDidSubscribeToChannel');
-        this._pusherDidSubscribeToChannelPromiseResolve(channel);
+        this._pusherChannelSubscriptionDidSuccessDelegate(channel);
 
         if (typeof this._channelEventsListeners.onSubscriptionSucceeded !== 'undefined') {
           if (!channel.isPresence) {
@@ -78,12 +66,12 @@ export class Pusher implements IPusher {
         console.log('pusherDidUnsubscribeFromChannel');
       },
 
-      pusherDidFailToSubscribeToChannelWithError: (pusher, channel, error) => {
+      pusherDidFailToSubscribeToChannelWithError (pusher, channel, error) {
         console.log('pusherDidFailToSubscribeToChannelWithError');
 
         let subscriptionError = error.localizedDescription
 
-        this._pusherDidSubscribeToChannelPromiseReject(subscriptionError);
+        this._pusherChannelSubscriptionDidFailDelegate(subscriptionError);
 
         if (typeof this._channelEventsListeners.onAuthenticationFailure !== 'undefined') {
           this._channelEventsListeners.onAuthenticationFailure(subscriptionError);
@@ -119,21 +107,34 @@ export class Pusher implements IPusher {
 
   }
 
-  public connect () {
+  connect () {
 
     this._pusher.connect();
 
     return new Promise((resolve, reject) => {
-      this._connectionPromiseResolve = resolve;
-      this._connectionPromiseReject = reject;
+      this._pusherConnectionDidSuccessDelegate = (pusher: Object, connection: Object) => {
+        console.log('pusherConnectionDidConnect');
+        let connectionEstablished = connection.connected;
+
+        if (connectionEstablished) {
+          resolve();
+        }
+      }
+
+      this._pusherConnectionDidfailDelegate = (pusher: Object, connection: Object, error: Object, willAttemptReconnect: Boolean) => {
+        console.log('pusherConnectionDidDisconnectWithErrorWillAttemptReconnect');
+        let errorReason = error.userInfo.objectForKey('reason');
+
+        reject(errorReason);
+      }
     });
   }
 
-  public disconnect () {
+  disconnect () {
     this._pusher.disconnect();
   }
 
-  public subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
+  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
 
     let subscribeInfo = errorsHandler('subscribe', channelTypeAndName, eventName, channelEventsListeners);
 
@@ -145,80 +146,75 @@ export class Pusher implements IPusher {
 
       this._channelEventsListeners = channelEventsListeners;
 
-      let pusherDidSubscribeToChannelPromise = new Promise((resolve, reject) => {
-        this._pusherDidSubscribeToChannelPromiseResolve = resolve;
-        this._pusherDidSubscribeToChannelPromiseReject = reject;
-      })
-
       let subscriptionMethodName = {
         'public': 'subscribeToChannelNamed',
         'private': 'subscribeToPrivateChannelNamed',
         'presence': 'subscribeToPresenceChannelNamedDelegate'
       }[subscribeInfo.channelInfo.channelType];
 
-      let Delegate = NSObject.extend({
-        presenceChannelDidSubscribe: (channel: Object) => {
-          
-          let members = [];
-
-          for ( let memberIndex = 0; memberIndex < channel.members.valueForKey('members').allKeys.count; memberIndex ++ ) {
-            let userID = channel.members.valueForKey('members').allKeys[memberIndex];
-
-            let userInfo = { };
-
-            for (let infoIndex = 0; infoIndex < channel.members.valueForKey('members').allValues[memberIndex].userInfo.allKeys.count; infoIndex ++) {
-              let infoKey = channel.members.valueForKey('members').allValues[memberIndex].userInfo.allKeys[infoIndex];
-              userInfo[infoKey] = channel.members.valueForKey('members').allValues[memberIndex].userInfo.allValues[infoIndex];
-            }
-
-            let user = {
-              userID,
-              userInfo
-            }
-            members.push(user);
-          }
-
-          if (typeof this._channelEventsListeners.onMemberInformationReceived !== 'undefined') {
-            this._channelEventsListeners.onMemberInformationReceived(channel.name, members);
-          }
-        },
-        presenceChannelMemberAdded: (channel: Object, member: Object) => {
-          console.log('presence-presenceChannelMemberAdded')
-
-          let member = {
-            userID: member.userID
-            userInfo: member.userInfo.toJSON()
-          }
-
-          if (typeof this._channelEventsListeners.memberSubscribed !== 'undefined') {
-            this._channelEventsListeners.memberSubscribed(channel.name, member);
-          }
-        },
-        presenceChannelMemberRemoved: (channel: Object, member: Object) => {
-          console.log('presence-presenceChannelMemberRemoved')
-
-          let member = {
-            userID: member.userID
-            userInfo: member.userInfo.toJSON()
-          }
-
-          if (typeof this._channelEventsListeners.memberUnsubscribed !== 'undefined') {
-            this._channelEventsListeners.memberUnsubscribed(channel.name, member)
-          }
-        }
-      }, {
-        protocols: [PTPusherPresenceChannelDelegate]
-      });
-
-      let presenceDelegate = Delegate.alloc().init();
-
       if (subscribeInfo.channelInfo.channelType === channelTypes.presenceChannelType) {
+        let Delegate = NSObject.extend({
+          presenceChannelDidSubscribe: (channel: Object) => {
+            
+            let members = [];
+
+            for ( let memberIndex = 0; memberIndex < channel.members.valueForKey('members').allKeys.count; memberIndex ++ ) {
+              let userID = channel.members.valueForKey('members').allKeys[memberIndex];
+
+              let userInfo = { };
+
+              for (let infoIndex = 0; infoIndex < channel.members.valueForKey('members').allValues[memberIndex].userInfo.allKeys.count; infoIndex ++) {
+                let infoKey = channel.members.valueForKey('members').allValues[memberIndex].userInfo.allKeys[infoIndex];
+                userInfo[infoKey] = channel.members.valueForKey('members').allValues[memberIndex].userInfo.allValues[infoIndex];
+              }
+
+              let user = {
+                userID,
+                userInfo
+              }
+              members.push(user);
+            }
+
+            if (typeof this._channelEventsListeners.onMemberInformationReceived !== 'undefined') {
+              this._channelEventsListeners.onMemberInformationReceived(channel.name, members);
+            }
+          },
+          presenceChannelMemberAdded: (channel: Object, member: Object) => {
+            console.log('presence-presenceChannelMemberAdded')
+
+            let member = {
+              userID: member.userID
+              userInfo: member.userInfo.toJSON()
+            }
+
+            if (typeof this._channelEventsListeners.memberSubscribed !== 'undefined') {
+              this._channelEventsListeners.memberSubscribed(channel.name, member);
+            }
+          },
+          presenceChannelMemberRemoved: (channel: Object, member: Object) => {
+            console.log('presence-presenceChannelMemberRemoved')
+
+            let member = {
+              userID: member.userID
+              userInfo: member.userInfo.toJSON()
+            }
+
+            if (typeof this._channelEventsListeners.memberUnsubscribed !== 'undefined') {
+              this._channelEventsListeners.memberUnsubscribed(channel.name, member)
+            }
+          }
+        }, {
+          protocols: [PTPusherPresenceChannelDelegate]
+        });
+
+        let presenceDelegate = Delegate.alloc().init();
+
         this._pusher[subscriptionMethodName](subscribeInfo.channelInfo.channelName, presenceDelegate);
       } else {
         this._pusher[subscriptionMethodName](subscribeInfo.channelInfo.channelName);
       }
-      
-      pusherDidSubscribeToChannelPromise.then((channel: Object) => {
+
+      this._pusherChannelSubscriptionDidSuccessDelegate = (channel: Object) => {
         let pusherEventBinding = channel.bindToEventNamedHandleWithBlock(eventName, channelEvent => {
           let eventData = { channel: channelEvent.channel, eventName: channelEvent.name, data: channelEvent.data.toJSON() };
           this._channelEventsListeners.onEvent(eventData);
@@ -233,15 +229,15 @@ export class Pusher implements IPusher {
         this._pusherEventBindings.push(eventBindingData);
         
         resolve();
-      }).catch((error) => {
-        reject(error);
-      });
+      }
 
+      this._pusherChannelSubscriptionDidFailDelegate = error => reject(error)
+      
     });
   }
 
 
-  public unsubscribe (channelTypeAndName: String, eventNames?: Array <String>) {
+  unsubscribe (channelTypeAndName: String, eventNames?: Array <String>) {
 
     let unsubscribeInfo = errorsHandler('unsubscribe', channelTypeAndName, eventNames);
 
@@ -263,7 +259,7 @@ export class Pusher implements IPusher {
     
   }
 
-  public trigger (channelTypeAndName: String, eventName: String, eventData: Object) {
+  trigger (channelTypeAndName: String, eventName: String, eventData: Object) {
 
     let triggerInfo = errorsHandler('trigger', channelTypeAndName, eventName, eventData);
 
