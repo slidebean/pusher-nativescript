@@ -107,7 +107,7 @@ export class Pusher implements IPusher {
 
   }
 
-  connect () {
+  public connect () {
 
     this._pusher.connect();
 
@@ -130,11 +130,11 @@ export class Pusher implements IPusher {
     });
   }
 
-  disconnect () {
+  public disconnect () {
     this._pusher.disconnect();
   }
 
-  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
+  public subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
 
     let subscribeInfo = errorsHandler('subscribe', channelTypeAndName, eventName, channelEventsListeners);
 
@@ -233,7 +233,7 @@ export class Pusher implements IPusher {
   }
 
 
-  unsubscribe (channelTypeAndName: String, eventNames?: Array <String>) {
+  public unsubscribe (channelTypeAndName: String, eventNames?: Array <String>) {
 
     let unsubscribeInfo = errorsHandler('unsubscribe', channelTypeAndName, eventNames);
 
@@ -255,7 +255,7 @@ export class Pusher implements IPusher {
     
   }
 
-  trigger (channelTypeAndName: String, eventName: String, eventData: Object) {
+  public trigger (channelTypeAndName: String, eventName: String, eventData: Object) {
 
     let triggerInfo = errorsHandler('trigger', channelTypeAndName, eventName, eventData);
 
@@ -278,7 +278,7 @@ export class Pusher implements IPusher {
     });
   }
 
-  bindEventToTheChannel (channel: Object, channelName: String, eventName: String, handler: Function) {
+  private bindEventToTheChannel (channel: Object, channelName: String, eventName: String, handler: Function) {
     let pusherEventBinding = channel.bindToEventNamedHandleWithBlock(eventName, channelEvent => {
       let eventData = { channel: channelEvent.channel, eventName: channelEvent.name, data: channelEvent.data.toJSON() };
       handler(eventData);
@@ -293,7 +293,7 @@ export class Pusher implements IPusher {
     this._pusherEventBindings.push(eventBindingData);
   }
 
-  getChannelByNameAndType (channelName: String, channelType: String) {
+  private getChannelByNameAndType (channelName: String, channelType: String) {
     return this._pusher.channelNamed((channelType === channelTypes.publicChannelType) ? channelName : `${ channelType }-${ channelName }`);
   }
 
