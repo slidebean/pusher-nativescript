@@ -1,4 +1,4 @@
-import { IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener } from '../../interfaces';
+import { IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
 let defaultChannelTypes = ['public', 'private', 'presence'];
 let [publicChannelType, privateChannelType, presenceChannelType] = defaultChannelTypes;
 
@@ -15,12 +15,54 @@ let validator = {
     }
   },
 
-  options (platform: String, options: Object) {
+  options (platform: String, options: IPusherOptions) {
     if (typeof options !== 'object') {
       throw(new Error('pusher-nativescript package error: options parameter must be an object'))
     }
 
-    if (platform === 'iOS') {
+    if (typeof options.activityTimeout !== 'undefined') {
+      if(typeof options.activityTimeout !== 'number') {
+        throw(new Error('pusher-nativescript package error: options.activityTimeout property must be a number'));
+      }
+    }
+
+    if (typeof options.authorizer !== 'undefined') {
+      if (typeof options.authorizer !== 'string') {
+        throw(new Error('pusher-nativescript package error: options.authorizer property must be a string'));
+      }
+    }
+
+    if (typeof options.cluster !== 'undefined') {
+      if (typeof options.cluster !== 'string') {
+        throw(new Error('pusher-nativescript package error: options.cluster property must be a string'));
+      }
+    }
+
+    if (typeof options.host !== 'undefined') {
+      if(typeof options.host !== 'string') {
+        throw(new Error('pusher-nativescript package error: options.host property must be a string'));
+      }
+    }
+
+    if (typeof options.pongTimeout !== 'undefined') {
+      if(typeof options.pongTimeout !== 'number') {
+        throw(new Error('pusher-nativescript package error: options.pongTimeout property must be a number'));
+      }
+    }
+
+    if (typeof options.wsPort !== 'undefined') {
+      if(typeof options.wsPort !== 'number') {
+        throw(new Error('pusher-nativescript package error: options.wsPort property must be a number'));
+      }
+    }
+
+    if (typeof options.wssPort !== 'undefined') {
+      if(typeof options.wssPort !== 'number') {
+        throw(new Error('pusher-nativescript package error: options.wssPort property must be a number'));
+      }
+    }
+
+    if (platform === 'iOS' || platform === 'Android' && typeof options.encrypted !== 'undefined') {
       if (typeof options.encrypted !== 'boolean') {
         throw(new Error('pusher-nativescript package error: options.encrypted parameter is required and must be a boolean'));
       }

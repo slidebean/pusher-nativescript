@@ -21,60 +21,32 @@ export class Pusher implements IPusher {
       this._options.setActivityTimeout(options.activityTimeout);
     }
 
-    if (typeof options.authorizer !== 'undefined') {
-      if (typeof options.authorizer !== 'string') {
-        throw(new Error('pusher-nativescript package error: options.authorizer property must be a string'));
-      }
-
+    if (options.authorizer) {
       let _authorizer = new com.pusher.client.util.HttpAuthorizer(options.authorizer);
       this._options.setAuthorizer(_authorizer);
     }
 
-    if (typeof options.cluster !== 'undefined') {
-      if (typeof options.cluster !== 'string') {
-        throw(new Error('pusher-nativescript package error: options.cluster property must be a string'));
-      }
-
+    if (options.cluster) {
       this._options.setCluster(options.cluster);
     }
 
     if (typeof options.encrypted !== 'undefined') {
-      if (typeof options.encrypted !== 'boolean') {
-        throw(new Error('pusher-nativescript package error: options.encrypted property must be a boolean'));
-      }
-
       this._options.setEncrypted(options.encrypted);
     }
 
-    if (typeof options.host !== 'undefined') {
-      if(typeof options.host !== 'string') {
-        throw(new Error('pusher-nativescript package error: options.host property must be a string'));
-      }
-
+    if (options.host) {
       this._options.setHost(options.host);
     }
 
-    if (typeof options.pongTimeout !== 'undefined') {
-      if(typeof options.pongTimeout !== 'number') {
-        throw(new Error('pusher-nativescript package error: options.pongTimeout property must be a number'));
-      }
-
+    if (options.pongTimeout) {
       this._options.setPongTimeout(options.pongTimeout);
     }
 
-    if (typeof options.wsPort !== 'undefined') {
-      if(typeof options.wsPort !== 'number') {
-        throw(new Error('pusher-nativescript package error: options.wsPort property must be a number'));
-      }
-
+    if (options.wsPort) {
       this._options.setWsPort(options.wsPort);
     }
 
-    if (typeof options.wssPort !== 'undefined') {
-      if(typeof options.wssPort !== 'number') {
-        throw(new Error('pusher-nativescript package error: options.wssPort property must be a number'));
-      }
-
+    if (options.wssPort) {
       this._options.setWssPort(options.wssPort);
     }
 

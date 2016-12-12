@@ -87,21 +87,13 @@ export class Pusher implements IPusher {
 
     let delegate = Delegate.alloc().init();
 
-    if (typeof options.cluster !== 'undefined') {
-      if (typeof options.cluster !== 'string') {
-        throw(new Error('pusher-nativescript package error: options.cluster property must be a string'));
-      }
-
+    if (options.cluster) {
       this._pusher = PTPusher.pusherWithKeyDelegateEncryptedCluster(appKey, delegate, options.encrypted, options.cluster);
     } else {
       this._pusher = PTPusher.pusherWithKeyDelegateEncrypted(appKey, delegate, options.encrypted);
     }
 
-    if (typeof options.authorizer !== 'undefined') {
-      if (typeof options.authorizer !== 'string') {
-        throw(new Error('pusher-nativescript package error: options.authorizer property must be a string'));
-      }
-
+    if (options.authorizer) {
       this._pusher.authorizationURL = NSURL.URLWithString(options.authorizer);
     }
 
