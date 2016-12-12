@@ -123,6 +123,7 @@ export class Pusher implements IPusher {
       }
 
       let eventNames = [eventName];
+      let channel;
 
       let subscriptionMethodNameAndChannelEventListenerName = {
         'public': 'subscribe-ChannelEventListener',
@@ -134,6 +135,8 @@ export class Pusher implements IPusher {
 
       let channelName = (subscribeInfo.channelInfo.channelType === channelTypes.publicChannelType) ? subscribeInfo.channelInfo.channelName : `${ subscribeInfo.channelInfo.channelType }-${ subscribeInfo.channelInfo.channelName }`;
 
+      channel = this.getChannelByNameAndType(channelName, subscribeInfo.channelInfo.channelType);
+        
       let pusherEventBinding = new com.pusher.client.channel[channelEventListenerName]({
         onEvent (channelName, eventName, data) {
           channelEventsListeners.onEvent({ channel: channelName, eventName: eventName, data: JSON.parse(data) });
@@ -195,7 +198,11 @@ export class Pusher implements IPusher {
         }
       })
 
-      this._pusher[subscriptionMethodName](channelName, pusherEventBinding, eventNames);
+      if (!channel) {
+        this._pusher[subscriptionMethodName](channelName, pusherEventBinding, eventNames);
+      } else {
+        channel.bind(eventName, pusherEventBinding);
+      }
 
       let eventBindingData = {
         channelName: subscribeInfo.channelInfo.channelName,
