@@ -146,88 +146,84 @@ export class Pusher implements IPusher {
 
       this._channelEventsListeners = channelEventsListeners;
 
+      let channel;
+
       let subscriptionMethodName = {
         'public': 'subscribeToChannelNamed',
         'private': 'subscribeToPrivateChannelNamed',
         'presence': 'subscribeToPresenceChannelNamedDelegate'
       }[subscribeInfo.channelInfo.channelType];
 
-      if (subscribeInfo.channelInfo.channelType === channelTypes.presenceChannelType) {
-        let Delegate = NSObject.extend({
-          presenceChannelDidSubscribe: (channel: Object) => {
-            
-            let members = [];
+      channel = this.getChannelByNameAndType(subscribeInfo.channelInfo.channelName, subscribeInfo.channelInfo.channelType)
 
-            for ( let memberIndex = 0; memberIndex < channel.members.valueForKey('members').allKeys.count; memberIndex ++ ) {
-              let userID = channel.members.valueForKey('members').allKeys[memberIndex];
+      if (!channel) {
+        if (subscribeInfo.channelInfo.channelType === channelTypes.presenceChannelType) {
+          let Delegate = NSObject.extend({
+            presenceChannelDidSubscribe: (channel: Object) => {
+              
+              let members = [];
 
-              let userInfo = { };
+              for ( let memberIndex = 0; memberIndex < channel.members.valueForKey('members').allKeys.count; memberIndex ++ ) {
+                let userID = channel.members.valueForKey('members').allKeys[memberIndex];
 
-              for (let infoIndex = 0; infoIndex < channel.members.valueForKey('members').allValues[memberIndex].userInfo.allKeys.count; infoIndex ++) {
-                let infoKey = channel.members.valueForKey('members').allValues[memberIndex].userInfo.allKeys[infoIndex];
-                userInfo[infoKey] = channel.members.valueForKey('members').allValues[memberIndex].userInfo.allValues[infoIndex];
+                let userInfo = { };
+
+                for (let infoIndex = 0; infoIndex < channel.members.valueForKey('members').allValues[memberIndex].userInfo.allKeys.count; infoIndex ++) {
+                  let infoKey = channel.members.valueForKey('members').allValues[memberIndex].userInfo.allKeys[infoIndex];
+                  userInfo[infoKey] = channel.members.valueForKey('members').allValues[memberIndex].userInfo.allValues[infoIndex];
+                }
+
+                let user = {
+                  userID,
+                  userInfo
+                }
+                members.push(user);
               }
 
-              let user = {
-                userID,
-                userInfo
+              if (typeof this._channelEventsListeners.onMemberInformationReceived !== 'undefined') {
+                this._channelEventsListeners.onMemberInformationReceived(channel.name, members);
               }
-              members.push(user);
+            },
+            presenceChannelMemberAdded: (channel: Object, member: Object) => {
+              console.log('presence-presenceChannelMemberAdded')
+
+              let member = {
+                userID: member.userID
+                userInfo: member.userInfo.toJSON()
+              }
+
+              if (typeof this._channelEventsListeners.memberSubscribed !== 'undefined') {
+                this._channelEventsListeners.memberSubscribed(channel.name, member);
+              }
+            },
+            presenceChannelMemberRemoved: (channel: Object, member: Object) => {
+              console.log('presence-presenceChannelMemberRemoved')
+
+              let member = {
+                userID: member.userID
+                userInfo: member.userInfo.toJSON()
+              }
+
+              if (typeof this._channelEventsListeners.memberUnsubscribed !== 'undefined') {
+                this._channelEventsListeners.memberUnsubscribed(channel.name, member)
+              }
             }
+          }, {
+            protocols: [PTPusherPresenceChannelDelegate]
+          });
 
-            if (typeof this._channelEventsListeners.onMemberInformationReceived !== 'undefined') {
-              this._channelEventsListeners.onMemberInformationReceived(channel.name, members);
-            }
-          },
-          presenceChannelMemberAdded: (channel: Object, member: Object) => {
-            console.log('presence-presenceChannelMemberAdded')
+          let presenceDelegate = Delegate.alloc().init();
 
-            let member = {
-              userID: member.userID
-              userInfo: member.userInfo.toJSON()
-            }
-
-            if (typeof this._channelEventsListeners.memberSubscribed !== 'undefined') {
-              this._channelEventsListeners.memberSubscribed(channel.name, member);
-            }
-          },
-          presenceChannelMemberRemoved: (channel: Object, member: Object) => {
-            console.log('presence-presenceChannelMemberRemoved')
-
-            let member = {
-              userID: member.userID
-              userInfo: member.userInfo.toJSON()
-            }
-
-            if (typeof this._channelEventsListeners.memberUnsubscribed !== 'undefined') {
-              this._channelEventsListeners.memberUnsubscribed(channel.name, member)
-            }
-          }
-        }, {
-          protocols: [PTPusherPresenceChannelDelegate]
-        });
-
-        let presenceDelegate = Delegate.alloc().init();
-
-        this._pusher[subscriptionMethodName](subscribeInfo.channelInfo.channelName, presenceDelegate);
+          channel = this._pusher[subscriptionMethodName](subscribeInfo.channelInfo.channelName, presenceDelegate);
+        } else {
+          channel = this._pusher[subscriptionMethodName](subscribeInfo.channelInfo.channelName);
+        }
       } else {
-        this._pusher[subscriptionMethodName](subscribeInfo.channelInfo.channelName);
+        this.bindEventToTheChannel(channel, subscribeInfo.channelInfo.channelName, eventName, this._channelEventsListeners.onEvent);
       }
 
       this._pusherChannelSubscriptionDidSuccessDelegate = (channel: Object) => {
-        let pusherEventBinding = channel.bindToEventNamedHandleWithBlock(eventName, channelEvent => {
-          let eventData = { channel: channelEvent.channel, eventName: channelEvent.name, data: channelEvent.data.toJSON() };
-          this._channelEventsListeners.onEvent(eventData);
-        })
-
-        let eventBindingData = {
-          channelName: subscribeInfo.channelInfo.channelName,
-          eventName: eventName,
-          pusherEventBinding: pusherEventBinding
-        }
-
-        this._pusherEventBindings.push(eventBindingData);
-        
+        this.bindEventToTheChannel(channel, subscribeInfo.channelInfo.channelName, eventName, this._channelEventsListeners.onEvent);
         resolve();
       }
 
@@ -253,7 +249,7 @@ export class Pusher implements IPusher {
         }
       }
     } else {
-      let channel = this._pusher.channelNamed((unsubscribeInfo.channelInfo.channelType === channelTypes.publicChannelType ) ? unsubscribeInfo.channelInfo.channelName : `${ unsubscribeInfo.channelInfo.channelType }-${ unsubscribeInfo.channelInfo.channelName }`);
+      let channel = this.getChannelByNameAndType(unsubscribeInfo.channelInfo.channelName, unsubscribeInfo.channelInfo.channelType);
       channel.unsubscribe();
     }
     
@@ -269,7 +265,7 @@ export class Pusher implements IPusher {
         return reject(triggerInfo.errorMessage);
       }
 
-      let channel = this._pusher.channelNamed(`${ triggerInfo.channelInfo.channelType }-${ triggerInfo.channelInfo.channelName }`);
+      let channel = this.getChannelByNameAndType(triggerInfo.channelInfo.channelName, triggerInfo.channelInfo.channelType);
 
       let interval = setInterval(() => {
         if (channel.subscribed) {
@@ -280,6 +276,25 @@ export class Pusher implements IPusher {
       }, 10)
 
     });
+  }
+
+  bindEventToTheChannel (channel: Object, channelName: String, eventName: String, handler: Function) {
+    let pusherEventBinding = channel.bindToEventNamedHandleWithBlock(eventName, channelEvent => {
+      let eventData = { channel: channelEvent.channel, eventName: channelEvent.name, data: channelEvent.data.toJSON() };
+      handler(eventData);
+    })
+
+    let eventBindingData = {
+      channelName: channelName,
+      eventName: eventName,
+      pusherEventBinding: pusherEventBinding
+    }
+
+    this._pusherEventBindings.push(eventBindingData);
+  }
+
+  getChannelByNameAndType (channelName: String, channelType: String) {
+    return this._pusher.channelNamed((channelType === channelTypes.publicChannelType) ? channelName : `${ channelType }-${ channelName }`);
   }
 
 }
