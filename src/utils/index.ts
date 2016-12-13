@@ -163,67 +163,51 @@ export let errorsHandler = (method: String, ...params: Array <any>) => {
     channelInfo: null
   }
 
-  switch (method) {
-    case 'constructor':
+  try {
+    switch (method) {
+      case 'constructor':
 
-      let [platform, appKey, options] = params;
+        let [platform, appKey, options] = params;
 
-      try {
         validator.appKey(appKey);
         validator.options(platform, options);
-      } catch (error) {
-        validationInfo.isValid = false;
-        validationInfo.errorMessage = error;
-      }
 
-    break;
+      break;
 
-    case 'subscribe':
+      case 'subscribe':
 
-      let [channelName, eventName, channelEventsListeners] = params;
+        let [channelName, eventName, channelEventsListeners] = params;
 
-      try {
         validationInfo.channelInfo = validator.channelName(method, channelName);
         validator.eventName(eventName);
         validator.channelEventsListeners(channelEventsListeners);
-      } catch (error) {
-        validationInfo.isValid = false;
-        validationInfo.errorMessage = error;
-      }
 
-    break;
+      break;
 
-    case 'unsubscribe':
+      case 'unsubscribe':
 
-      let [channelName, eventNames] = params;
+        let [channelName, eventNames] = params;
 
-      try {
         validationInfo.channelInfo = validator.channelName(method, channelName);
         validator.eventNames(eventNames);
-      } catch (error) {
-        validationInfo.isValid = false;
-        validationInfo.errorMessage = error;
-      }
 
-    break;
+      break;
 
 
-    case 'trigger':
+      case 'trigger':
 
-      let [channelName, eventName, eventData] = params;
+        let [channelName, eventName, eventData] = params;
 
-      try {
         validationInfo.channelInfo = validator.channelName(method, channelName);
         validator.eventName(eventName);
         validator.eventData(eventData);
-      } catch (error) {
-        validationInfo.isValid = false;
-        validationInfo.errorMessage = error;
-      }
 
-    break;
+      break;
 
-
+    }
+  } catch (error) {
+    validationInfo.isValid = false;
+    validationInfo.errorMessage = error;
   }
 
   return validationInfo;
