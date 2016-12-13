@@ -38,21 +38,11 @@ export class Pusher implements IPusher {
 
       pusherConnectionDidDisconnectWithErrorWillAttemptReconnect: (pusher: Object, connection: Object, error: Object, willAttemptReconnect: Boolean) => this._pusherConnectionDidfailDelegate(pusher, connection, error, willAttemptReconnect),
 
-      pusherConnectionFailedWithError (pusher, connection, error) {
-        console.log('pusherConnectionFailedWithError');
-      },
-
       pusherConnectionWillAutomaticallyReconnectAfterDelay (pusher, connection, delay) {
-        console.log('pusherConnectionWillAutomaticallyReconnectAfterDelay');
         return true;
       },
 
-      pusherWillAuthorizeChannelWithAuthOperation (pusher, channel, operation) {
-        console.log('pusherWillAuthorizeChannelWithAuthOperation');
-      },
-
       pusherDidSubscribeToChannel: (pusher, channel) => {
-        console.log('pusherDidSubscribeToChannel');
         this._pusherChannelSubscriptionDidSuccessDelegate(channel);
 
         if (typeof this._channelEventsListeners.onSubscriptionSucceeded !== 'undefined') {
@@ -60,12 +50,7 @@ export class Pusher implements IPusher {
         }
       },
 
-      pusherDidUnsubscribeFromChannel (pusher, channel) {
-        console.log('pusherDidUnsubscribeFromChannel');
-      },
-
       pusherDidFailToSubscribeToChannelWithError: (pusher, channel, error)  => {
-        console.log('pusherDidFailToSubscribeToChannelWithError');
 
         let subscriptionError = error.localizedDescription
 
@@ -74,10 +59,6 @@ export class Pusher implements IPusher {
         if (typeof this._channelEventsListeners.onAuthenticationFailure !== 'undefined') {
           this._channelEventsListeners.onAuthenticationFailure(subscriptionError);
         }
-      },
-
-      pusherDidReceiveErrorEvent (pusher, errorEvent) {
-        console.log('pusherDidReceiveErrorEvent');
       }
     }, {
       protocols: [PTPusherDelegate]
@@ -103,7 +84,6 @@ export class Pusher implements IPusher {
 
     return new Promise((resolve, reject) => {
       this._pusherConnectionDidSuccessDelegate = (pusher: Object, connection: Object) => {
-        console.log('pusherConnectionDidConnect');
         let connectionEstablished = connection.connected;
 
         if (connectionEstablished) {
@@ -112,7 +92,6 @@ export class Pusher implements IPusher {
       }
 
       this._pusherConnectionDidfailDelegate = (pusher: Object, connection: Object, error: Object, willAttemptReconnect: Boolean) => {
-        console.log('pusherConnectionDidDisconnectWithErrorWillAttemptReconnect');
         let errorReason = error.userInfo.objectForKey('reason');
 
         reject(errorReason);
@@ -175,7 +154,6 @@ export class Pusher implements IPusher {
               }
             },
             presenceChannelMemberAdded: (channel: Object, member: Object) => {
-              console.log('presence-presenceChannelMemberAdded')
 
               let member = {
                 userID: member.userID
@@ -187,7 +165,6 @@ export class Pusher implements IPusher {
               }
             },
             presenceChannelMemberRemoved: (channel: Object, member: Object) => {
-              console.log('presence-presenceChannelMemberRemoved')
 
               let member = {
                 userID: member.userID

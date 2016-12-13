@@ -66,7 +66,6 @@ export class Pusher implements IPusher {
         },
 
         onError (message: String, code: String, exception: Object) {
-          console.log(exception)
           reject(message);
         }
       }
@@ -127,7 +126,6 @@ export class Pusher implements IPusher {
           reject(message);
         },
         onUsersInformationReceived (channelName: String, subscribedMembers: Array <any>) {
-          console.log('onUsersInformationReceived')
 
           let members = [];
 
@@ -146,7 +144,6 @@ export class Pusher implements IPusher {
           }
         },
         userSubscribed (channelName: String, memberSubscribed: Array <Object>) {
-          console.log('userSubscribed')
 
           let member = {
             userID: memberSubscribed.getId()
@@ -158,7 +155,6 @@ export class Pusher implements IPusher {
           }
         },
         userUnsubscribed (channelName: String, memberUnsubscribed: Array <Object>) {
-          console.log('userUnsubscribed')
 
           let member = {
             userID: memberUnsubscribed.getId()
