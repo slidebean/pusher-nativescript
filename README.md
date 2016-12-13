@@ -128,7 +128,7 @@ After disconnection the Pusher instance will release any internally allocated re
 
 ## Subscribing to channels and binding-handling events
 
-Pusher uses the concept of [channels](http://pusher.com/docs/channels) as a way of subscribing to data. They are identified and subscribed to by a simple name. Events are bound to on a channels and are also identified by name. To listen to an event you need to implemented the `IPublicChannelEventListener` or `IPrivateChannelEventListener` or `IPresenceChannelEventListener` interface depending of the channel type you have subscribed to.
+Pusher uses the concept of [channels](http://pusher.com/docs/channels) as a way of subscribing to data. They are identified and subscribed to by a simple name. Events are bound to on a channels and are also identified by name. To listen to an event you need to have implemented the `IPublicChannelEventListener` or `IPrivateChannelEventListener` or `IPresenceChannelEventListener` interface depending of the channel type you have subscribed to.
 
 Channel subscriptions need only be registered once per `Pusher` instance. They are preserved across disconnection and re-established with the server on reconnect. They should NOT be re-registered. They may, however, be registered with a `Pusher` instance before the first call to `connect` - they will be completed with the server as soon as a connection becomes available.
 
@@ -312,7 +312,7 @@ pusher.trigger(channelTypeAndName, eventName, data).then(() => {
 
 Events triggered by clients are called [client events](http://pusher.com/docs/client_events). Because they are being triggered from a client which may not be trusted there are a number of enforced rules when using them. Some of these rules include:
 
-* Event names must have a `client-` prefix (The trigger method adds it for you, so you only need to pass in the event name without the client- prefix)
+* Event names must have a `client-` prefix (The trigger method adds it for you, so you only need to pass in the event name without the `client-` prefix)
 * Rate limits
 * You can only trigger an event when the subscription has succeeded (However you can trigger an event do not knowing it, and the trigger method is going to delivered it as soon as the subscription has been succeded)
 
