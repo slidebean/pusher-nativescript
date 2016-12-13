@@ -56,9 +56,7 @@ export class Pusher implements IPusher {
         this._pusherChannelSubscriptionDidSuccessDelegate(channel);
 
         if (typeof this._channelEventsListeners.onSubscriptionSucceeded !== 'undefined') {
-          if (!channel.isPresence) {
-            this._channelEventsListeners.onSubscriptionSucceeded(channel.name);
-          }
+          this._channelEventsListeners.onSubscriptionSucceeded(channel.name);
         }
       },
 
@@ -66,7 +64,7 @@ export class Pusher implements IPusher {
         console.log('pusherDidUnsubscribeFromChannel');
       },
 
-      pusherDidFailToSubscribeToChannelWithError (pusher, channel, error) {
+      pusherDidFailToSubscribeToChannelWithError: (pusher, channel, error)  => {
         console.log('pusherDidFailToSubscribeToChannelWithError');
 
         let subscriptionError = error.localizedDescription
@@ -126,9 +124,9 @@ export class Pusher implements IPusher {
     this._pusher.disconnect();
   }
 
-  public subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
+  public subscribe (channelName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
 
-    let subscribeInfo = errorsHandler('subscribe', channelTypeAndName, eventName, channelEventsListeners);
+    let subscribeInfo = errorsHandler('subscribe', channelName, eventName, channelEventsListeners);
 
     return new Promise((resolve, reject) => {
 
@@ -225,9 +223,9 @@ export class Pusher implements IPusher {
   }
 
 
-  public unsubscribe (channelTypeAndName: String, eventNames?: Array <String>) {
+  public unsubscribe (channelName: String, eventNames?: Array <String>) {
 
-    let unsubscribeInfo = errorsHandler('unsubscribe', channelTypeAndName, eventNames);
+    let unsubscribeInfo = errorsHandler('unsubscribe', channelName, eventNames);
 
     if (!unsubscribeInfo.isValid) {
       throw(new Error(unsubscribeInfo.errorMessage));
@@ -247,9 +245,9 @@ export class Pusher implements IPusher {
     
   }
 
-  public trigger (channelTypeAndName: String, eventName: String, eventData: Object) {
+  public trigger (channelName: String, eventName: String, eventData: Object) {
 
-    let triggerInfo = errorsHandler('trigger', channelTypeAndName, eventName, eventData);
+    let triggerInfo = errorsHandler('trigger', channelName, eventName, eventData);
 
     return new Promise((resolve, reject) => {
 

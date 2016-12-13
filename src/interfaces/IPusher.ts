@@ -27,7 +27,7 @@ export interface IPusher {
   /**
    * Subscribes to a public, presence or private channel.
    *
-   * @param channelTypeAndName The type and name of the channel to subscribe to.
+   * @param channelName The type and name of the channel to subscribe to.
    *
    * @param eventName The name of the event to listen to.
    *
@@ -36,17 +36,17 @@ export interface IPusher {
    * @return A Promise.
    */
 
-  subscribe (channelTypeAndName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener): Promise<any>;
+  subscribe (channelName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener): Promise<any>;
 
   /**
    * Unsubscribes from a channel using via the name of the channel.
    *
-   * @param channelTypeAndName The type and name of the channel to be unsubscribed from.
+   * @param channelName The type and name of the channel to be unsubscribed from.
    *
    * @param eventNames The optional event or events names to be unsubscribed.
    */
 
-  unsubscribe (channelTypeAndName: String, eventNames?: Array <string>): void;
+  unsubscribe (channelName: String, eventNames?: Array <string>): void;
 
   /**
    * Triggers an event on the specified channel.
@@ -54,7 +54,7 @@ export interface IPusher {
    * The data will be converted to JSON format so needs to be any object that can be
    * transformed into JSON (typically any plist-compatible object).
    *
-   * @param channelTypeAndName The type and name of the channel the event should be triggered on.
+   * @param channelName The type and name of the channel the event should be triggered on.
    *
    * @param eventName The name of the event to be triggered.
    *
@@ -63,6 +63,6 @@ export interface IPusher {
    * @return A promise.
    */
 
-  trigger (channelTypeAndName: String, eventName: String, eventData: Object): Promise<any>;
+  trigger (channelName: String, eventName: String, eventData: Object): Promise<any>;
 
 }
