@@ -55,11 +55,12 @@ let publicChannelEventsListeners:IPublicChannelEventListener = {
   }
 }
 
-let channelTypeAndName = 'public-my_public_channel';
+let channelName = 'my_public_channel';
 let eventName = 'my_event';
 
 // Subscribing to a public channel and listening for events called "my_event" sent to "my_public_channel"
-pusher.subscribe(channelTypeAndName, eventName, publicChannelEventsListeners).then(() => {
+pusher.subscribe(channelName, eventName, publicChannelEventsListeners).then(eventBindingID => {
+  // eventBindingID can be used to stop listening the event called "my_event"
   console.log('Channel subscription and event binding succeeded');
 }).catch(error => {
   // Some errors have occurred when subscribing and/or binding the event
@@ -158,10 +159,10 @@ let publicChannelEventsListeners:IPublicChannelEventListener = {
   }
 }
 
-let channelTypeAndName = 'public-my_public_channel';
+let channelName = 'my_public_channel';
 let eventName = 'my_event';
 
-pusher.subscribe(channelTypeAndName, eventName, publicChannelEventsListeners);
+pusher.subscribe(channelName, eventName, publicChannelEventsListeners);
 ```
 
 ### Private channels
@@ -183,10 +184,11 @@ let privateChannelEventsListeners:IPrivateChannelEventListener = {
   // Other PublicChannelEventsListeners methods
 }
 
-let channelTypeAndName = 'private-my_private_channel';
+// To subscribe a private channel you need to add the private- prefix to your channelName
+let channelName = 'private-my_private_channel';
 let eventName = 'my_event';
 
-pusher.subscribe(channelTypeAndName, eventName, privateChannelEventsListeners);
+pusher.subscribe(channelName, eventName, privateChannelEventsListeners);
 ```
 
 The `IPrivateChannelEventListener` interface extends the `IPublicChannelEventListener` interface.
@@ -216,10 +218,11 @@ let presenceChannelEventsListeners:IPresenceChannelEventListener = {
   // Other IPrivateChannelEventListener methods
 }
 
-let channelTypeAndName = 'presence-my_presence_channel';
+// To subscribe a presence channel you need to add the presence- prefix to your channelName
+let channelName = 'presence-my_presence_channel';
 let eventName = 'my_event';
 
-pusher.subscribe(channelTypeAndName, eventName, presenceChannelEventsListeners);
+pusher.subscribe(channelName, eventName, presenceChannelEventsListeners);
 ```
 
 The `IPresenceChannelEventListener` interface extends the `IPrivateChannelEventListener` interface.
@@ -251,7 +254,7 @@ For more information on defining the user id and user info on the server see [Im
 You can unbind from an event or events:
 
 ```typescript
-pusher.unsubscribe('public-my_public_channel', ['my_event']);
+pusher.unsubscribe('my_public_channel', [ eventBindingID ]);
 ```
 
 ### Example
@@ -262,6 +265,7 @@ import { IPublicChannelEventListener } from 'pusher-nativescript/interfaces';
 
 class Example {
   _pusher;
+  _eventBindingID;
   
   connectingToPusher () {
     this._pusher = new Pusher(YOUR_APP_KEY);
@@ -280,14 +284,15 @@ class Example {
       }
     }
 
-    let channelTypeAndName = 'public-my_public_channel';
+    let channelName = 'my_public_channel';
     let eventName = 'my_event';
 
-    this._pusher.subscribe(channelTypeAndName, eventName, publicChannelEventsListeners);
+    this._pusher.subscribe(channelName, eventName, publicChannelEventsListeners)
+      .then(eventBindingID => this._eventBindingID = eventBindingID);
   }
   
   stopingListeningToMyEvent () {
-    this._pusher.unsubscribe('public-my_public_channel', ['my_event']);
+    this._pusher.unsubscribe('my_public_channel', [ this._eventBindingID ]);
   }
 
 }
