@@ -43,10 +43,10 @@ export interface IPusher {
    *
    * @param channelName The type and name of the channel to be unsubscribed from.
    *
-   * @param eventNames The optional event or events names to be unsubscribed.
+   * @param eventBindingIDs The optional eventBindingID or events eventBindingIDs to stop listen.
    */
 
-  unsubscribe (channelName: String, eventNames?: Array <string>): void;
+  unsubscribe (channelName: String, eventBindingIDs?: Array <Number>): void;
 
   /**
    * Triggers an event on the specified channel.

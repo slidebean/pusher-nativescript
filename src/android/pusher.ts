@@ -96,6 +96,7 @@ export class Pusher implements IPusher {
 
       let eventNames = [eventName];
       let channel;
+      let eventBindingID = this._pusherEventBindings.length;
 
       let subscriptionMethodNameAndChannelEventListenerName = {
         'public': 'subscribe-ChannelEventListener',
@@ -117,7 +118,7 @@ export class Pusher implements IPusher {
           if (typeof channelEventsListeners.onSubscriptionSucceeded !== 'undefined') {
             channelEventsListeners.onSubscriptionSucceeded(channelName);
           }
-          resolve();
+          resolve(eventBindingID);
         },
         onAuthenticationFailure (message: String, exception: Object) {
           if (typeof channelEventsListeners.onAuthenticationFailure !== 'undefined') {
@@ -177,6 +178,7 @@ export class Pusher implements IPusher {
       }
 
       let eventBindingData = {
+        eventBindingID: eventBindingID,
         channelName: subscribeInfo.channelInfo.channelName,
         eventName: eventName,
         pusherEventBinding: pusherEventBinding
@@ -187,17 +189,17 @@ export class Pusher implements IPusher {
     });
   }
 
-  public unsubscribe (channelName: String, eventNames?: Array <String>) {
+  public unsubscribe (channelName: String, eventBindingIDs?: Array <Number>) {
 
-    let unsubscribeInfo = errorsHandler('unsubscribe', channelName, eventNames);
+    let unsubscribeInfo = errorsHandler('unsubscribe', channelName, eventBindingIDs);
 
     if (!unsubscribeInfo.isValid) {
       throw(new Error(unsubscribeInfo.errorMessage));
     }
 
-    if (typeof eventNames !== 'undefined') {
+    if (typeof eventBindingIDs !== 'undefined') {
       for (let key in this._pusherEventBindings) {
-        if ( unsubscribeInfo.channelInfo.channelName === this._pusherEventBindings[key].channelName && eventNames.indexOf(this._pusherEventBindings[key].eventName) !== -1 ) {
+        if ( unsubscribeInfo.channelInfo.channelName === this._pusherEventBindings[key].channelName && eventBindingIDs.indexOf(this._pusherEventBindings[key].eventBindingID) !== -1 ) {
           let channel = this.getChannelByNameAndType(unsubscribeInfo.channelInfo.channelName, unsubscribeInfo.channelInfo.channelType);
           channel.unbind(this._pusherEventBindings[key].eventName, this._pusherEventBindings[key].pusherEventBinding);
           this._pusherEventBindings.splice(key, 1);

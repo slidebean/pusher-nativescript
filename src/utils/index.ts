@@ -115,19 +115,15 @@ let validator = {
     }
   },
 
-  eventNames (eventNames: Array <string>) {
-    if (typeof eventNames !== 'undefined') {
-      if (!Array.isArray(eventNames) || eventNames.length === 0) {
-        throw(new Error('The eventNames parameter must be an array and can not be empty'));
+  eventBindingIDs (eventBindingIDs: Array <Number>) {
+    if (typeof eventBindingIDs !== 'undefined') {
+      if (!Array.isArray(eventBindingIDs) || eventBindingIDs.length === 0) {
+        throw(new Error('The eventBindingIDs parameter must be an array and can not be empty'));
       }
 
-      for (let key of eventNames) {
-        if (typeof key !== 'string') {
-          throw(new Error('The eventNames parameter must be an array of string(s)'));
-        }
-
-        if (key.length === 0) {
-          throw(new Error('The eventNames parameter can not contains empty strings'));
+      for (let key of eventBindingIDs) {
+        if (typeof key !== 'number') {
+          throw(new Error('The eventBindingIDs parameter must be an array of number(s)'));
         }
       }
     }
@@ -186,10 +182,10 @@ export let errorsHandler = (method: String, ...params: Array <any>) => {
 
       case 'unsubscribe':
 
-        let [channelName, eventNames] = params;
+        let [channelName, eventBindingIDs] = params;
 
         validationInfo.channelInfo = validator.channelName(method, channelName);
-        validator.eventNames(eventNames);
+        validator.eventBindingIDs(eventBindingIDs);
 
       break;
 

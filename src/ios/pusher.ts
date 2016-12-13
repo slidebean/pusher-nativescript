@@ -209,12 +209,13 @@ export class Pusher implements IPusher {
           channel = this._pusher[subscriptionMethodName](subscribeInfo.channelInfo.channelName);
         }
       } else {
-        this.bindEventToTheChannel(channel, subscribeInfo.channelInfo.channelName, eventName, this._channelEventsListeners.onEvent);
+        let eventBindingID = this.bindEventToTheChannel(channel, subscribeInfo.channelInfo.channelName, eventName, this._channelEventsListeners.onEvent);
+        resolve(eventBindingID);
       }
 
       this._pusherChannelSubscriptionDidSuccessDelegate = (channel: Object) => {
-        this.bindEventToTheChannel(channel, subscribeInfo.channelInfo.channelName, eventName, this._channelEventsListeners.onEvent);
-        resolve();
+        let eventBindingID = this.bindEventToTheChannel(channel, subscribeInfo.channelInfo.channelName, eventName, this._channelEventsListeners.onEvent);
+        resolve(eventBindingID);
       }
 
       this._pusherChannelSubscriptionDidFailDelegate = error => reject(error)
@@ -222,18 +223,17 @@ export class Pusher implements IPusher {
     });
   }
 
+  public unsubscribe (channelName: String, eventBindingIDs?: Array <Number>) {
 
-  public unsubscribe (channelName: String, eventNames?: Array <String>) {
-
-    let unsubscribeInfo = errorsHandler('unsubscribe', channelName, eventNames);
+    let unsubscribeInfo = errorsHandler('unsubscribe', channelName, eventBindingIDs, this._pusherEventBindings);
 
     if (!unsubscribeInfo.isValid) {
       throw(new Error(unsubscribeInfo.errorMessage));
     }
 
-    if (typeof eventNames !== 'undefined') {
+    if (typeof eventBindingIDs !== 'undefined') {
       for (let key in this._pusherEventBindings) {
-        if ( unsubscribeInfo.channelInfo.channelName === this._pusherEventBindings[key].channelName && eventNames.indexOf(this._pusherEventBindings[key].eventName) !== -1 ) {
+        if (eventBindingIDs.indexOf(this._pusherEventBindings[key].eventBindingID) !== -1 ) {
           this._pusherEventBindings[key].pusherEventBinding.invalidate()
           this._pusherEventBindings.splice(key, 1);
         }
@@ -274,13 +274,18 @@ export class Pusher implements IPusher {
       handler(eventData);
     })
 
+    let eventBindingID = this._pusherEventBindings.length;
+
     let eventBindingData = {
-      channelName: channelName,
-      eventName: eventName,
+      eventBindingID: eventBindingID,
       pusherEventBinding: pusherEventBinding
     }
 
     this._pusherEventBindings.push(eventBindingData);
+
+    
+
+    return eventBindingID;
   }
 
   private getChannelByNameAndType (channelName: String, channelType: String) {
