@@ -1,6 +1,7 @@
 import { IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
 let defaultChannelTypes = ['public', 'private', 'presence'];
 let [publicChannelType, privateChannelType, presenceChannelType] = defaultChannelTypes;
+let isAPrivateOrPresenceChannelRegularExpression = /private-|presence-\w{0,}$/;
 
 export let channelTypes = {
   publicChannelType,
@@ -69,23 +70,27 @@ let validator = {
     }
   },
 
-  channelTypeAndName (method: String, channelTypeAndName: String) {
+  channelName (method: String, channelTypeAndName: String) {
     if (typeof channelTypeAndName === 'undefined' || channelTypeAndName.length === 0) {
-      throw(new Error('The channelTypeAndName parameter is required and can not be empty'));
+      throw(new Error('The channelName parameter is required and can not be empty'));
     }
 
     if (typeof channelTypeAndName !== 'string') {
-      throw(new Error('The channelTypeAndName parameter must be a string'));
+      throw(new Error('The channelName parameter must be a string'));
     }
 
-    let [channelType, channelName] = channelTypeAndName.split('-');
+    let [channelType] = (isAPrivateOrPresenceChannelRegularExpression.test(channelTypeAndName)) ? channelTypeAndName.split('-') : [publicChannelType];
+    let channelName;
 
-    if (defaultChannelTypes.indexOf(channelType) === -1) {
-      throw(new Error('The channelTypeAndName parameter must has the type of the channel'));
-    }
+    if (isAPrivateOrPresenceChannelRegularExpression.test(channelTypeAndName)) {
+      let [, ...channelNameParts] = channelTypeAndName.split('-');
+      channelName = channelNameParts.join('-');
 
-    if (typeof channelName === 'undefined' || channelName.length === 0) {
-      throw(new Error('The channelTypeAndName parameter must has the name of the channel'));
+      if (typeof channelName === 'undefined' || channelName.length === 0) {
+        throw(new Error('The channelName parameter must has the name of the channel'));
+      }
+    } else {
+      channelName = channelTypeAndName;
     }
 
     if (method === 'trigger') {
@@ -175,10 +180,10 @@ export let errorsHandler = (method: String, ...params: Array <any>) => {
 
     case 'subscribe':
 
-      let [channelTypeAndName, eventName, channelEventsListeners] = params;
+      let [channelName, eventName, channelEventsListeners] = params;
 
       try {
-        validationInfo.channelInfo = validator.channelTypeAndName(method, channelTypeAndName);
+        validationInfo.channelInfo = validator.channelName(method, channelName);
         validator.eventName(eventName);
         validator.channelEventsListeners(channelEventsListeners);
       } catch (error) {
@@ -190,10 +195,10 @@ export let errorsHandler = (method: String, ...params: Array <any>) => {
 
     case 'unsubscribe':
 
-      let [channelTypeAndName, eventNames] = params;
+      let [channelName, eventNames] = params;
 
       try {
-        validationInfo.channelInfo = validator.channelTypeAndName(method, channelTypeAndName);
+        validationInfo.channelInfo = validator.channelName(method, channelName);
         validator.eventNames(eventNames);
       } catch (error) {
         validationInfo.isValid = false;
@@ -205,10 +210,10 @@ export let errorsHandler = (method: String, ...params: Array <any>) => {
 
     case 'trigger':
 
-      let [channelTypeAndName, eventName, eventData] = params;
+      let [channelName, eventName, eventData] = params;
 
       try {
-        validationInfo.channelInfo = validator.channelTypeAndName(method, channelTypeAndName);
+        validationInfo.channelInfo = validator.channelName(method, channelName);
         validator.eventName(eventName);
         validator.eventData(eventData);
       } catch (error) {
