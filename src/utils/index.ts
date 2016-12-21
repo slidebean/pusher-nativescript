@@ -9,7 +9,7 @@ export let channelTypes = {
   presenceChannelType
 }
 
-let validator = {
+export let validator = {
   appKey (appKey: String) {
     if (typeof appKey === 'undefined' || typeof appKey !== 'string') {
       throw(new Error('pusher-nativescript package error: appKey parameter is required and must be a string'))
@@ -70,7 +70,7 @@ let validator = {
     }
   },
 
-  channelName (method: String, channelTypeAndName: String) {
+  channelName (channelTypeAndName: String, method?: String) {
     if (typeof channelTypeAndName === 'undefined' || channelTypeAndName.length === 0) {
       throw(new Error('The channelName parameter is required and can not be empty'));
     }
@@ -129,84 +129,25 @@ let validator = {
     }
   },
 
-  eventData (eventData: String) {
+  eventData (eventData: Object) {
     if (typeof eventData === 'undefined' || typeof eventData !== 'object') {
       throw(new Error('The eventData parameter is required and must be an object'));
     }
   },
 
-  channelEventsListeners (channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
-    if (typeof channelEventsListeners === 'undefined' || typeof channelEventsListeners !== 'object') {
-      throw(new Error('The channelEventsListeners parameter is required and must be an object'));
+  channelEventsListener (channelEventsListener: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
+    if (typeof channelEventsListener === 'undefined' || typeof channelEventsListener !== 'object') {
+      throw(new Error('The channelEventsListener parameter is required and must be an object'));
     }
 
-    for (let key in channelEventsListeners) {
-      if (typeof channelEventsListeners[key] !== 'function') {
-        throw(new Error('The channelEventsListeners parameter must be an object of functions'));
+    for (let key in channelEventsListener) {
+      if (typeof channelEventsListener[key] !== 'function') {
+        throw(new Error('The channelEventsListener parameter must be an object of functions'));
       }
     }
 
-    if (typeof channelEventsListeners.onEvent === 'undefined') {
-      throw(new Error('The channelEventsListeners parameter must has at least \'onEvent\' listener'));
+    if (typeof channelEventsListener.onEvent === 'undefined') {
+      throw(new Error('The channelEventsListener parameter must has at least \'onEvent\' listener'));
     }
   }
  }
-
-export let errorsHandler = (method: String, ...params: Array <any>) => {
-  let validationInfo = {
-    isValid: true,
-    errorMessage: '',
-    channelInfo: null
-  }
-
-  try {
-    switch (method) {
-      case 'constructor':
-
-        let [platform, appKey, options] = params;
-
-        validator.appKey(appKey);
-        validator.options(platform, options);
-
-      break;
-
-      case 'subscribe':
-
-        let [channelName, eventName, channelEventsListeners] = params;
-
-        validationInfo.channelInfo = validator.channelName(method, channelName);
-        validator.eventName(eventName);
-        validator.channelEventsListeners(channelEventsListeners);
-
-      break;
-
-      case 'unsubscribe':
-
-        let [channelName, eventBindingIDs] = params;
-
-        validationInfo.channelInfo = validator.channelName(method, channelName);
-        validator.eventBindingIDs(eventBindingIDs);
-
-      break;
-
-
-      case 'trigger':
-
-        let [channelName, eventName, eventData] = params;
-
-        validationInfo.channelInfo = validator.channelName(method, channelName);
-        validator.eventName(eventName);
-        validator.eventData(eventData);
-
-      break;
-
-    }
-  } catch (error) {
-    validationInfo.isValid = false;
-    validationInfo.errorMessage = error;
-  }
-
-  return validationInfo;
-
-}
-
