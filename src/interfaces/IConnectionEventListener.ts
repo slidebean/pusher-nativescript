@@ -1,7 +1,7 @@
 /**
  * Used to listen for connection specific events.
  */
-export interface IConnectionEventListeners {
+export interface IConnectionEventListener {
 
   /**
    * Callback that is fired whenever the ConnectionState of the

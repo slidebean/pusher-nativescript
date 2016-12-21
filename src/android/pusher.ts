@@ -1,4 +1,4 @@
-import { IPusher, IConnectionEventListeners , IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
+import { IPusher, IConnectionEventListener , IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
 import { errorsHandler, channelTypes } from '../utils';
 declare let com;
 
@@ -56,7 +56,7 @@ export class Pusher implements IPusher {
 
   public connect () {
     return new Promise((resolve, reject) => {
-      let listeners:IConnectionEventListeners  = {
+      let listeners:IConnectionEventListener  = {
         onConnectionStateChange (change: Object) {
           let connectionCurrentState = change.getCurrentState().name();
 
