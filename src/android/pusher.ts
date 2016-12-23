@@ -1,5 +1,5 @@
 import { IPusher, IConnectionEventListener , IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
-import { validator, getChannelType, getChannelName } from '../utils';
+import { validator, getChannelType } from '../utils';
 declare let com;
 
 export class Pusher implements IPusher {

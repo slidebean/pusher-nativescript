@@ -111,7 +111,7 @@ export let validator = {
     }
 
     if (allowPublic === false) {
-      throw(new Error('The type of the channel can not be public'));
+      throw(new Error('The type of the channel cannot be public'));
     }
   },
 
