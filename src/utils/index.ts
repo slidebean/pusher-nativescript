@@ -20,15 +20,8 @@ export let getChannelType = (channelName: String) => {
   return publicChannelType;
 }
 
-export let getChannelName = (channelName: String) => {
-  let channelType = getChannelType(channelName);
-
-  if (channelType !== publicChannelType) {
-    let [, ...channelNameParts] = channelName.split('-');
-    channelName = channelNameParts.join('-');
-  }
-
-  return channelName;
+export let extractChannelName = (channelName: String) => {
+  return channelName.replace(/^(private|presence)-/, '');
 }
 
 export let validator = {
@@ -102,7 +95,7 @@ export let validator = {
     }
 
     let channelType = getChannelType(channelName);
-    channelName = getChannelName(channelName);
+    channelName = extractChannelName(channelName);
 
     if (channelType !== publicChannelType) {
       if (typeof channelName === 'undefined' || channelName.length === 0) {

@@ -1,6 +1,6 @@
 import { IPusher, IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
 declare let NSObject, NSDictionary, NSURL, PTPusherDelegate, PTPusherPresenceChannelDelegate, PTPusher;
-import { channelTypes, validator, getChannelType, getChannelName } from '../utils';
+import { channelTypes, validator, getChannelType, extractChannelName } from '../utils';
 
 NSDictionary.prototype.toJSON = function () {
   let result = {};
@@ -121,7 +121,7 @@ export class Pusher implements IPusher {
 
       channel = this.getChannelByName(channelName);
 
-      channelName = getChannelName(channelName);
+      channelName = extractChannelName(channelName);
 
       if (!channel) {
         if (channelType === channelTypes.presenceChannelType) {
