@@ -1,12 +1,34 @@
 import { IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
 let defaultChannelTypes = ['public', 'private', 'presence'];
 let [publicChannelType, privateChannelType, presenceChannelType] = defaultChannelTypes;
-let isAPrivateOrPresenceChannelRegularExpression = /private-|presence-\w{0,}$/;
 
 export let channelTypes = {
   publicChannelType,
   privateChannelType,
   presenceChannelType
+}
+
+export let getChannelType = (channelName: String) => {
+  if (/^presence-/.test(channelName)) {
+    return presenceChannelType;
+  }
+
+  if (/^private-/.test(channelName)) {
+    return privateChannelType;
+  }
+
+  return publicChannelType;
+}
+
+export let getChannelName = (channelName: String) => {
+  let channelType = getChannelType(channelName);
+
+  if (channelType !== publicChannelType) {
+    let [, ...channelNameParts] = channelName.split('-');
+    channelName = channelNameParts.join('-');
+  }
+
+  return channelName;
 }
 
 export let validator = {
@@ -70,38 +92,26 @@ export let validator = {
     }
   },
 
-  channelName (channelTypeAndName: String, method?: String) {
-    if (typeof channelTypeAndName === 'undefined' || channelTypeAndName.length === 0) {
+  channelName (channelName: String, { allowPublic = true } = {}) {
+    if (typeof channelName === 'undefined' || channelName.length === 0) {
       throw(new Error('The channelName parameter is required and can not be empty'));
     }
 
-    if (typeof channelTypeAndName !== 'string') {
+    if (typeof channelName !== 'string') {
       throw(new Error('The channelName parameter must be a string'));
     }
 
-    let [channelType] = (isAPrivateOrPresenceChannelRegularExpression.test(channelTypeAndName)) ? channelTypeAndName.split('-') : [publicChannelType];
-    let channelName;
+    let channelType = getChannelType(channelName);
+    channelName = getChannelName(channelName);
 
-    if (isAPrivateOrPresenceChannelRegularExpression.test(channelTypeAndName)) {
-      let [, ...channelNameParts] = channelTypeAndName.split('-');
-      channelName = channelNameParts.join('-');
-
+    if (channelType !== publicChannelType) {
       if (typeof channelName === 'undefined' || channelName.length === 0) {
         throw(new Error('The channelName parameter must has the name of the channel'));
-      }
-    } else {
-      channelName = channelTypeAndName;
+      }  
     }
 
-    if (method === 'trigger') {
-      if (channelType === publicChannelType) {
-        throw(new Error('The type of the channel can not be public'));
-      }
-    }
-
-    return { 
-      channelType,
-      channelName
+    if (allowPublic === false) {
+      throw(new Error('The type of the channel can not be public'));
     }
   },
 
