@@ -2,9 +2,6 @@ import { IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceCha
 import { Promise } from 'es6-promise';
 
 export declare class Pusher {
-  _pusher: Object;
-  _options: IPusherOptions;
-  _pusherEventBindings: Array <Object>;
 
   /**
    * Creates a new instance of Pusher.
@@ -44,12 +41,12 @@ export declare class Pusher {
    *
    * @param eventName The name of the event to listen to.
    *
-   * @param channelEventsListeners The listeners to be notified when events are raised.
+   * @param channelEventsListener The listeners to be notified when events are raised.
    *
    * @return A Promise.
    */
 
-  public subscribe (channelName: String, eventName: String, channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener): Promise<any>;
+  public subscribe (channelName: String, eventName: String, channelEventsListener: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener): Promise<any>;
 
   /**
    * Unsubscribes from a channel using via the name of the channel.

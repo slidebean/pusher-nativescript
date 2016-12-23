@@ -1,7 +1,6 @@
 import { IPublicChannelEventListener, IPrivateChannelEventListener, IPresenceChannelEventListener, IPusherOptions } from '../../interfaces';
 let defaultChannelTypes = ['public', 'private', 'presence'];
 let [publicChannelType, privateChannelType, presenceChannelType] = defaultChannelTypes;
-let isAPrivateOrPresenceChannelRegularExpression = /private-|presence-\w{0,}$/;
 
 export let channelTypes = {
   publicChannelType,
@@ -9,7 +8,23 @@ export let channelTypes = {
   presenceChannelType
 }
 
-let validator = {
+export let getChannelType = (channelName: String) => {
+  if (/^presence-/.test(channelName)) {
+    return presenceChannelType;
+  }
+
+  if (/^private-/.test(channelName)) {
+    return privateChannelType;
+  }
+
+  return publicChannelType;
+}
+
+export let extractChannelName = (channelName: String) => {
+  return channelName.replace(/^(private|presence)-/, '');
+}
+
+export let validator = {
   appKey (appKey: String) {
     if (typeof appKey === 'undefined' || typeof appKey !== 'string') {
       throw(new Error('pusher-nativescript package error: appKey parameter is required and must be a string'))
@@ -70,38 +85,26 @@ let validator = {
     }
   },
 
-  channelName (method: String, channelTypeAndName: String) {
-    if (typeof channelTypeAndName === 'undefined' || channelTypeAndName.length === 0) {
+  channelName (channelName: String, { allowPublic = true } = {}) {
+    if (typeof channelName === 'undefined' || channelName.length === 0) {
       throw(new Error('The channelName parameter is required and can not be empty'));
     }
 
-    if (typeof channelTypeAndName !== 'string') {
+    if (typeof channelName !== 'string') {
       throw(new Error('The channelName parameter must be a string'));
     }
 
-    let [channelType] = (isAPrivateOrPresenceChannelRegularExpression.test(channelTypeAndName)) ? channelTypeAndName.split('-') : [publicChannelType];
-    let channelName;
+    let channelType = getChannelType(channelName);
+    channelName = extractChannelName(channelName);
 
-    if (isAPrivateOrPresenceChannelRegularExpression.test(channelTypeAndName)) {
-      let [, ...channelNameParts] = channelTypeAndName.split('-');
-      channelName = channelNameParts.join('-');
-
+    if (channelType !== publicChannelType) {
       if (typeof channelName === 'undefined' || channelName.length === 0) {
         throw(new Error('The channelName parameter must has the name of the channel'));
-      }
-    } else {
-      channelName = channelTypeAndName;
+      }  
     }
 
-    if (method === 'trigger') {
-      if (channelType === publicChannelType) {
-        throw(new Error('The type of the channel can not be public'));
-      }
-    }
-
-    return { 
-      channelType,
-      channelName
+    if (allowPublic === false) {
+      throw(new Error('The type of the channel cannot be public'));
     }
   },
 
@@ -129,84 +132,25 @@ let validator = {
     }
   },
 
-  eventData (eventData: String) {
+  eventData (eventData: Object) {
     if (typeof eventData === 'undefined' || typeof eventData !== 'object') {
       throw(new Error('The eventData parameter is required and must be an object'));
     }
   },
 
-  channelEventsListeners (channelEventsListeners: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
-    if (typeof channelEventsListeners === 'undefined' || typeof channelEventsListeners !== 'object') {
-      throw(new Error('The channelEventsListeners parameter is required and must be an object'));
+  channelEventsListener (channelEventsListener: IPublicChannelEventListener | IPrivateChannelEventListener | IPresenceChannelEventListener) {
+    if (typeof channelEventsListener === 'undefined' || typeof channelEventsListener !== 'object') {
+      throw(new Error('The channelEventsListener parameter is required and must be an object'));
     }
 
-    for (let key in channelEventsListeners) {
-      if (typeof channelEventsListeners[key] !== 'function') {
-        throw(new Error('The channelEventsListeners parameter must be an object of functions'));
+    for (let key in channelEventsListener) {
+      if (typeof channelEventsListener[key] !== 'function') {
+        throw(new Error('The channelEventsListener parameter must be an object of functions'));
       }
     }
 
-    if (typeof channelEventsListeners.onEvent === 'undefined') {
-      throw(new Error('The channelEventsListeners parameter must has at least \'onEvent\' listener'));
+    if (typeof channelEventsListener.onEvent === 'undefined') {
+      throw(new Error('The channelEventsListener parameter must has at least \'onEvent\' listener'));
     }
   }
  }
-
-export let errorsHandler = (method: String, ...params: Array <any>) => {
-  let validationInfo = {
-    isValid: true,
-    errorMessage: '',
-    channelInfo: null
-  }
-
-  try {
-    switch (method) {
-      case 'constructor':
-
-        let [platform, appKey, options] = params;
-
-        validator.appKey(appKey);
-        validator.options(platform, options);
-
-      break;
-
-      case 'subscribe':
-
-        let [channelName, eventName, channelEventsListeners] = params;
-
-        validationInfo.channelInfo = validator.channelName(method, channelName);
-        validator.eventName(eventName);
-        validator.channelEventsListeners(channelEventsListeners);
-
-      break;
-
-      case 'unsubscribe':
-
-        let [channelName, eventBindingIDs] = params;
-
-        validationInfo.channelInfo = validator.channelName(method, channelName);
-        validator.eventBindingIDs(eventBindingIDs);
-
-      break;
-
-
-      case 'trigger':
-
-        let [channelName, eventName, eventData] = params;
-
-        validationInfo.channelInfo = validator.channelName(method, channelName);
-        validator.eventName(eventName);
-        validator.eventData(eventData);
-
-      break;
-
-    }
-  } catch (error) {
-    validationInfo.isValid = false;
-    validationInfo.errorMessage = error;
-  }
-
-  return validationInfo;
-
-}
-
