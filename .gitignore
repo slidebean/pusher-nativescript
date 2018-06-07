@@ -13,3 +13,7 @@ typings/
 
 # Build
 dist/
+pusher-nativescript-*.tgz
+
+# Env
+.env

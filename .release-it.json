@@ -1,0 +1,18 @@
+{
+  "buildCommand": "npm run build",
+  "src": {
+    "beforeChangelogCommand": "npm pack",
+    "commitMessage": "Release v%s",
+    "tagName": "v%s",
+    "tagAnnotation": "Release v%s",
+    "afterReleaseCommand": "npm run clean:pack"
+  },
+  "github": {
+    "release": true,
+    "releaseName": "v%s",
+    "assets": "pusher-nativescript-*.tgz"
+  },
+  "npm": {
+    "publish": true
+  }
+}
