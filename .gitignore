@@ -1,6 +1,15 @@
+# Editors
+.vscode/
+
+# Logs
+*.log
+
+# Runtime data
 .DS_Store
-*.js
-node_modules/
-tmp/
+
+# Dependency directory
+node_modules
 typings/
-npm-debug.log
+
+# Build
+dist/

@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "lib/",
+    "declaration": false,
+    "sourceMap": true,
+    "target": "es3",
+    "removeComments": true
+  }
+}
