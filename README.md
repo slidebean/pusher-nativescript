@@ -1,5 +1,7 @@
 # Pusher Nativescript
 
+[![](https://img.shields.io/badge/-git--secrets-blue?logo=amazon-aws)](#)
+
 Pusher NativeScript adds [Pusher][pusher] support to [{N}][nativescript] applications.
 
 There is not official support for NativeScript in [pusher-js][pusher-js] sdk, but the Pusher team made a great work designing the JS library to target multiple platforms (react-native, node, browser, etc), while reusing a lot of code in the process. Taking advantage of that architecture, we were able to create a version of the [pusher-js sdk][pusher-js] that maintains the original API and provides support for NativeScript.
